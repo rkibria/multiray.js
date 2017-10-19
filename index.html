@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>multiray.js test</title>
+</head>
+
+<body>
+
+<script src="js/multiray.js"></script>
+
+<canvas id="myCanvas" width="640" height="240" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+const renderer = new MULTIRAY.Renderer();
+
+const scene = new MULTIRAY.Scene();
+scene.camera.setView(new MULTIRAY.Vector3(0, 0, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
+scene.backgroundColor.set(0.8, 0.1, 0.1);
+
+scene.addObject(new MULTIRAY.Sphere());
+scene.objects[0].center.set(0, 0, -1);
+scene.objects[0].radius = 0.5;
+
+scene.addObject(new MULTIRAY.Sphere());
+scene.objects[1].center.set(0, -100.5, -1);
+scene.objects[1].radius = 100;
+
+const canvas = document.getElementById("myCanvas");
+
+(function drawFrame () {
+	const t0 = performance.now();
+	renderer.renderToCanvas(scene, 2, canvas);
+	const t1 = performance.now();
+	console.log("render time: " + (t1 - t0) + " ms");
+}());
+
+</script>
+
+</body>
+</html>

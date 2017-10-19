@@ -1,2 +1,2 @@
 # multiray.js
-Javascript ray-tracer
+Javascript ray-tracer. WORK IN PROGRESS
