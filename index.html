@@ -10,8 +10,35 @@
 
 <script src="js/multiray.js"></script>
 
-<canvas id="myCanvas" width="640" height="240" style="border:1px solid #d3d3d3;">
-Your browser does not support the HTML5 canvas tag.</canvas>
+<!-- ------------------------------ -->
+<h2><a href="https://github.com/rkibria/multiray.js">multiray.js</a> - JavaScript ray-tracing</h2>
+
+<!-- ------------------------------ -->
+<hr>
+
+<canvas id="raytraceCanvas1" width="640" height="240" style="border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.</canvas>
+
+<!-- ------------------------------ -->
+<hr>
+<h3>References</h3>
+<ul>
+	<li><a href="https://github.com/rkibria/multiray.js">GitHub project page</a></li>
+	<li><a href="https://rkibria.github.io/multiray.js">GitHub Pages project main page</a></li>
+	<li>Peter Shirley: Ray Tracing in One Weekend</li>
+	<ul>
+		<li><a href="https://www.amazon.com/gp/product/B01B5AODD8/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=B01B5AODD8&linkCode=as2&tag=inonwe09-20&linkId=OPNJXXJY2IBCMEGE">Ray Tracing in One Weekend Kindle Edition</a></li>
+		<li><a href="http://in1weekend.blogspot.de/2016/01/ray-tracing-in-one-weekend.html">Ray Tracing in One Weekend blog</a></li>
+	</ul>
+	<li><a href="https://www.scratchapixel.com/index.php">scratchapixel.com</a></li>
+	<ul>
+		<li><a href="https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing">Introduction to Ray Tracing: a Simple Method for Creating 3D Images</a></li>
+		<li><a href="https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-overview">An Overview of the Ray-Tracing Rendering Technique</a></li>
+		<li><a href="https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays">Ray-Tracing: Generating Camera Rays</a></li>
+	</ul>
+</ul>
+
+<!-- ------------------------------ -->
 
 <script>
 const renderer = new MULTIRAY.Renderer();
@@ -28,7 +55,7 @@ scene.addObject(new MULTIRAY.Sphere());
 scene.objects[1].center.set(0, -100.5, -1);
 scene.objects[1].radius = 100;
 
-const canvas = document.getElementById("myCanvas");
+const canvas = document.getElementById("raytraceCanvas1");
 
 (function drawFrame () {
 	const t0 = performance.now();
