@@ -15,9 +15,13 @@
 
 <!-- ------------------------------ -->
 <hr>
+<h3>Test 1</h3>
 
-<canvas id="raytraceCanvas1" width="640" height="240" style="border:1px solid #d3d3d3;">
-	Your browser does not support the HTML5 canvas tag.</canvas>
+<p id="renderinfo1"></p>
+
+<canvas id="rendercanvas1" width="640" height="240">Your browser does not support the HTML5 canvas1 tag.</canvas>
+
+<p id="rendertime1">...</p>
 
 <!-- ------------------------------ -->
 <hr>
@@ -43,25 +47,27 @@
 <script>
 const renderer = new MULTIRAY.Renderer();
 
-const scene = new MULTIRAY.Scene();
-scene.camera.setView(new MULTIRAY.Vector3(0, 0, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
-scene.backgroundColor.set(0.8, 0.1, 0.1);
+document.getElementById("renderinfo1").innerHTML = "2 spheres, camera at origin, direction = -Z";
 
-scene.addObject(new MULTIRAY.Sphere());
-scene.objects[0].center.set(0, 0, -1);
-scene.objects[0].radius = 0.5;
+const scene1 = new MULTIRAY.Scene();
+scene1.camera.setView(new MULTIRAY.Vector3(0, 0, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
+scene1.backgroundColor.set(0.8, 0.1, 0.1);
 
-scene.addObject(new MULTIRAY.Sphere());
-scene.objects[1].center.set(0, -100.5, -1);
-scene.objects[1].radius = 100;
+scene1.addObject(new MULTIRAY.Sphere());
+scene1.objects[0].center.set(0, 0, -1);
+scene1.objects[0].radius = 0.5;
 
-const canvas = document.getElementById("raytraceCanvas1");
+scene1.addObject(new MULTIRAY.Sphere());
+scene1.objects[1].center.set(0, -100.5, -1);
+scene1.objects[1].radius = 100;
+
+const canvas1 = document.getElementById("rendercanvas1");
 
 (function drawFrame () {
 	const t0 = performance.now();
-	renderer.renderToCanvas(scene, 2, canvas);
+	renderer.renderToCanvas(scene1, 2, canvas1);
 	const t1 = performance.now();
-	console.log("render time: " + (t1 - t0) + " ms");
+	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms";
 }());
 
 </script>
