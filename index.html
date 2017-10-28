@@ -60,8 +60,11 @@ const renderer = new MULTIRAY.Renderer();
 document.getElementById("renderinfo1").innerHTML = "2 spheres, camera at origin, direction = -Z";
 
 const scene1 = new MULTIRAY.Scene();
-scene1.camera.setView(new MULTIRAY.Vector3(0, 0, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
 scene1.backgroundColor.set(0.0, 0.0, 0.0);
+
+const camera = new MULTIRAY.CameraSimple();
+camera.setView(new MULTIRAY.Vector3(0, 0, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
+scene1.setCamera(camera);
 
 scene1.addObject(new MULTIRAY.Sphere());
 scene1.objects[0].center.set(0, 0, -1);

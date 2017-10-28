@@ -3,7 +3,7 @@
  */
 
 var MULTIRAY = {
-	Camera: null,
+	CameraSimple: null,
 	HitRecord: null,
 	Ray: null,
 	Renderer: null,
@@ -15,7 +15,7 @@ var MULTIRAY = {
 (function (_export) {
 
 /* ************************************
-	CLASS: Camera
+	CLASS: CameraSimple
 ***************************************
 
 METHODS:
@@ -26,13 +26,13 @@ toString
 
 */
 
-function Camera () {
+function CameraSimple () {
 	this.fov = 0.0;
 	this.point = new Vector3();
 	this.pos = new Vector3();
 }
 
-Camera.prototype.getRay = function(ray, x, y, sW, sH) {
+CameraSimple.prototype.getRay = function(ray, x, y, sW, sH) {
 	const imageAspectRatio = sW / sH;
 	const tanFov = Math.tan(this.fov / 2.0 * Math.PI / 180.0);
 
@@ -43,14 +43,14 @@ Camera.prototype.getRay = function(ray, x, y, sW, sH) {
 	ray.direction.set(px, py, -1.0).normalize(); // TODO
 };
 
-Camera.prototype.setView = function(pos, point, fov) {
+CameraSimple.prototype.setView = function(pos, point, fov) {
 	this.pos.copy(pos);
 	this.point.copy(point);
 	this.fov = fov;
 };
 
-Camera.prototype.toString = function cameraToString() {
-	return "Camera(" + String(this.pos) + "," + String(this.point) + "," + String(this.fov) + ")";
+CameraSimple.prototype.toString = function cameraToString() {
+	return "CameraSimple(" + String(this.pos) + "," + String(this.point) + "," + String(this.fov) + ")";
 };
 
 /* ************************************
@@ -216,19 +216,24 @@ Renderer.prototype.trace = function(scene, curDepth) {
 METHODS:
 
 addObject
+setCamera
 toString
 
 */
 
 function Scene () {
 	this.backgroundColor = new Vector3(0.0, 0.0, 0.0);
-	this.camera = new Camera();
+	this.camera = null;
 	this.light = new Vector3(0.0, 0.0, 0.0);
 	this.objects = [];
 }
 
 Scene.prototype.addObject = function(obj) {
 	this.objects.push(obj);
+};
+
+Scene.prototype.setCamera = function(cam) {
+	this.camera = cam;
 };
 
 Scene.prototype.toString = function sceneToString() {
@@ -509,7 +514,7 @@ Vector3.prototype.toString = function vector3ToString() {
 	Exports
 **************************************/
 
-_export.Camera = Camera;
+_export.CameraSimple = CameraSimple;
 _export.HitRecord = HitRecord;
 _export.Ray = Ray;
 _export.Renderer = Renderer;
