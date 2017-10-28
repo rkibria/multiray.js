@@ -197,7 +197,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 			hitAnything = true;
 			if (hitRec.t < lowestT) {
 				lowestT = hitRec.t;
-				color.mapFrom(hitRec.normal, Math.abs);
+				color.mapFrom(hitRec.normal, function(x) {return 0.5*(x+1.0);});
 			}
 		}
 	}
