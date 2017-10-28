@@ -121,6 +121,7 @@ trace
 function Renderer () {
 	this.maxDepth = 0;
 
+	this._color = new Vector3();
 	this._traceStack = [];
 }
 
@@ -153,19 +154,28 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		}
 	}
 
+	const nSamples = 10;
+	const color = this._color;
+	const traceStackFirst = this._traceStack[0];
+
 	const dataLen = imgData.data.length;
 	for (let i = 0; i < dataLen; i += 4) {
 		const x = (i / 4) % sW;
 		const y = Math.floor(i / (4 * sW));
 
-		const u = x / sW;
-		const v = 1.0 - (y / sH);
+		const u0 = x / sW;
+		const v0 = 1.0 - (y / sH);
 
-		const traceStackFirst = this._traceStack[0];
-		scene.camera.getRay(traceStackFirst.ray, u, v);
-		this.trace(scene, 0);
+		color.set(0,0,0);
+		for (let k = 0; k < nSamples; k++) {
+			const u = u0;
+			const v = v0;
+			scene.camera.getRay(traceStackFirst.ray, u, v);
+			this.trace(scene, 0);
+			color.add(traceStackFirst.color);
+		}
+		color.divideScalar(nSamples);
 
-		const color = traceStackFirst.color;
 		const pixel = imgData.data;
 		pixel[i] = Math.max (0, Math.min (255, color.x * 255));
 		pixel[i+1] = Math.max (0, Math.min (255, color.y * 255));
