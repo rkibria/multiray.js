@@ -189,11 +189,14 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	const traceStackElement = this._traceStack[curDepth];
 
 	const color = traceStackElement.color;
+	const nearestHitNormal = traceStackElement.nearestHitNormal;
+	const nearestHitPoint = traceStackElement.nearestHitPoint;
 	const hitRec = traceStackElement.hitRec;
 	const ray = traceStackElement.ray;
 
 	let hitAnything = false;
 	let lowestT = Infinity;
+	let hitObject = null;
 
 	const nSceneObjects = scene.objects.length;
 	for (let i = 0; i < nSceneObjects; i++) {
@@ -203,12 +206,15 @@ Renderer.prototype.trace = function(scene, curDepth) {
 			hitAnything = true;
 			if (hitRec.t < lowestT) {
 				lowestT = hitRec.t;
-				color.mapFrom(hitRec.normal, function(x) {return 0.5*(x+1.0);});
+				nearestHitPoint.copy(hitRec.p);
+				nearestHitNormal.copy(hitRec.normal);
+				hitObject = curObject;
 			}
 		}
 	}
 
 	if (hitAnything) {
+		color.mapFrom(nearestHitNormal, function(x) {return 0.5*(x+1.0);});
 	}
 	else {
 		color.copy(scene.backgroundColor);
@@ -321,6 +327,8 @@ toString
 function TraceStackElement () {
 	this.color = new Vector3();
 	this.hitRec = new HitRecord();
+	this.nearestHitNormal = new Vector3();
+	this.nearestHitPoint = new Vector3();
 	this.ray = new Ray();
 }
 
