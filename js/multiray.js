@@ -21,36 +21,28 @@ var MULTIRAY = {
 METHODS:
 
 getRay
-setView
 toString
 
 */
 
 function CameraSimple () {
-	this.fov = 0.0;
-	this.point = new Vector3();
-	this.pos = new Vector3();
+	this.horizontal = new Vector3();
+	this.lowerLeftCorner = new Vector3();
+	this.origin = new Vector3();
+	this.vertical = new Vector3();
 }
 
-CameraSimple.prototype.getRay = function(ray, x, y, sW, sH) {
-	const imageAspectRatio = sW / sH;
-	const tanFov = Math.tan(this.fov / 2.0 * Math.PI / 180.0);
+CameraSimple.prototype.getRay = function(ray, u, v) {
+	ray.origin.copy(this.origin);
 
-	const px = (2.0 * ((x + 0.5) / sW) - 1) * tanFov * imageAspectRatio;
-	const py = (1.0 - 2.0 * ((y + 0.5) / sH)) * tanFov;
-
-	ray.origin.copy(this.pos);
-	ray.direction.set(px, py, -1.0).normalize(); // TODO
-};
-
-CameraSimple.prototype.setView = function(pos, point, fov) {
-	this.pos.copy(pos);
-	this.point.copy(point);
-	this.fov = fov;
+	ray.direction.copy(this.lowerLeftCorner);
+	ray.direction.addScaledVector(this.horizontal, u);
+	ray.direction.addScaledVector(this.vertical, v);
+	ray.direction.sub(this.origin);	
 };
 
 CameraSimple.prototype.toString = function cameraToString() {
-	return "CameraSimple(" + String(this.pos) + "," + String(this.point) + "," + String(this.fov) + ")";
+	return "CameraSimple(" + String(this.origin) + "," + String(this.lowerLeftCorner) + "," + String(this.horizontal) + "," + String(this.vertical) + ")";
 };
 
 /* ************************************
@@ -166,8 +158,11 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		const x = (i / 4) % sW;
 		const y = Math.floor(i / (4 * sW));
 
+		const u = x / sW;
+		const v = 1.0 - (y / sH);
+
 		const traceStackFirst = this._traceStack[0];
-		scene.camera.getRay(traceStackFirst.ray, x, y, sW, sH);
+		scene.camera.getRay(traceStackFirst.ray, u, v);
 		this.trace(scene, 0);
 
 		const color = traceStackFirst.color;

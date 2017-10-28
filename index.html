@@ -63,7 +63,10 @@ const scene1 = new MULTIRAY.Scene();
 scene1.backgroundColor.set(0.0, 0.0, 0.0);
 
 const camera = new MULTIRAY.CameraSimple();
-camera.setView(new MULTIRAY.Vector3(0, 0, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
+camera.horizontal = new MULTIRAY.Vector3(4.0, 0.0, 0.0);
+camera.lowerLeftCorner = new MULTIRAY.Vector3(-2.0, -1.0, -1.0);
+camera.origin = new MULTIRAY.Vector3(0.0, 0.0, 0.0);
+camera.vertical = new MULTIRAY.Vector3(0.0, 2.0, 0.0);
 scene1.setCamera(camera);
 
 scene1.addObject(new MULTIRAY.Sphere());
@@ -82,7 +85,7 @@ let t0 = 0, t1 = 0;
 	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms";
 
 	document.getElementById("renderinfo2").innerHTML = "2 spheres, camera at (1,1,0), direction = -Z";
-	scene1.camera.setView(new MULTIRAY.Vector3(1, 1, 0), new MULTIRAY.Vector3(0, 0, -1), 90.0);
+	scene1.camera.origin.set(1, 1, 0);
 	t0 = performance.now();
 	renderer.renderToCanvas(scene1, 2, document.getElementById("rendercanvas2"));
 	t1 = performance.now();
