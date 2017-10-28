@@ -121,7 +121,7 @@ trace
 function Renderer () {
 	this.maxDepth = 0;
 	this.nSamplesPerPixel = 10;
-	
+
 	this._color = new Vector3();
 	this._traceStack = [];
 }
@@ -345,12 +345,14 @@ divideScalar
 dot
 equals
 length
+lengthSq
 map
 mapFrom
 multiply
 multiplyScalar
 multiplyVectors
 normalize
+randomInUnitSphere
 set
 setScalar
 sub
@@ -438,6 +440,10 @@ Vector3.prototype.length = function() {
 	return Math.sqrt (this.x * this.x + this.y * this.y + this.z * this.z);
 };
 
+Vector3.prototype.lengthSq = function() {
+	return (this.x * this.x + this.y * this.y + this.z * this.z);
+};
+
 Vector3.prototype.map = function(f) {
 	this.x = f(this.x);
 	this.y = f(this.y);
@@ -475,6 +481,15 @@ Vector3.prototype.multiplyVectors = function(a, b) {
 
 Vector3.prototype.normalize = function() {
 	return this.divideScalar (this.length());
+};
+
+Vector3.prototype.randomInUnitSphere = function() {
+	do {
+		this.x = 2.0 * Math.random() - 1.0;
+		this.y = 2.0 * Math.random() - 1.0;
+		this.z = 2.0 * Math.random() - 1.0;
+	} while (this.lengthSq() >= 1.0);
+	return this;
 };
 
 Vector3.prototype.set = function(x, y, z) {
@@ -721,4 +736,8 @@ _export.Vector3 = Vector3;
 	rv2.set(-8, -4, -3);
 	rv1.mapFrom(rv2, Math.abs);
 	console.assert(rv1.x == 8 && rv1.y == 4 && rv1.z == 3);
+
+	rv1.randomInUnitSphere();
+	console.assert(rv1.lengthSq() <= 1.0);
+
 }());
