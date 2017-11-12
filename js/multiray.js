@@ -169,6 +169,7 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 			color.add(traceStackFirst.color);
 		}
 		color.divideScalar(nSamples);
+		color.map(Math.sqrt);
 
 		const pixel = imgData.data;
 		pixel[i] = Math.max (0, Math.min (255, color.x * 255));
