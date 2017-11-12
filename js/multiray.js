@@ -120,7 +120,7 @@ trace
 
 function Renderer () {
 	this.maxDepth = 0;
-	this.nSamplesPerPixel = 10;
+	this.nSamplesPerPixel = 5;
 
 	this._color = new Vector3();
 	this._traceStack = [];
@@ -186,6 +186,10 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 }
 
 Renderer.prototype.trace = function(scene, curDepth) {
+	if (curDepth > this.maxDepth) {
+		return;
+	}
+
 	const traceStackElement = this._traceStack[curDepth];
 
 	const color = traceStackElement.color;
