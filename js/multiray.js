@@ -185,6 +185,15 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 	}
 }
 
+/*
+Perform ray trace using _traceStack[curDepth].ray
+
+Results in _traceStack[curDepth]:
+bool hitAnything
+nearestHitNormal
+nearestHitPoint
+
+*/
 Renderer.prototype.trace = function(scene, curDepth) {
 	if (curDepth > this.maxDepth) {
 		return;
@@ -198,7 +207,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	const hitRec = traceStackElement.hitRec;
 	const ray = traceStackElement.ray;
 
-	let hitAnything = false;
+	traceStackElement.hitAnything = false;
 	let lowestT = Infinity;
 	let hitObject = null;
 
@@ -207,7 +216,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 		const curObject = scene.objects[i];
 		const isHit = curObject.hit(ray, 0.01, Infinity, hitRec);
 		if (isHit) {
-			hitAnything = true;
+			traceStackElement.hitAnything = true;
 			if (hitRec.t < lowestT) {
 				lowestT = hitRec.t;
 				nearestHitPoint.copy(hitRec.p);
@@ -217,8 +226,35 @@ Renderer.prototype.trace = function(scene, curDepth) {
 		}
 	}
 
-	if (hitAnything) {
-		color.mapFrom(nearestHitNormal, function(x) {return 0.5*(x+1.0);});
+	if (traceStackElement.hitAnything) {
+		// color.mapFrom(nearestHitNormal, function(x) {return 0.5*(x+1.0);});
+
+		reflectionHit = false;
+		if (curDepth < this.maxDepth - 1) {
+			nextDepth = curDepth + 1;
+
+			const nextStackElement = this._traceStack[nextDepth];
+			const nextRay = nextStackElement.ray;
+			
+			nextRay.origin.copy(nearestHitPoint);
+			
+			nextRay.direction.randomInUnitSphere();
+			nextRay.direction.add(nearestHitNormal);
+
+			this.trace(scene, nextDepth);
+
+			if (nextStackElement.hitAnything) {
+				reflectionHit = true;
+				color.set(1.0, 0.0, 0.0);
+			}
+		}
+
+		if (!reflectionHit) {
+			t = 0.5 * (ray.direction.y + 1.0);
+			color.set(0.5, 0.7, 1.0);
+			color.multiplyScalar(t);
+			color.addScalar(1.0 - t);
+		}
 	}
 	else {
 		color.copy(scene.backgroundColor);
@@ -330,6 +366,7 @@ toString
 
 function TraceStackElement () {
 	this.color = new Vector3();
+	this.hitAnything = false;
 	this.hitRec = new HitRecord();
 	this.nearestHitNormal = new Vector3();
 	this.nearestHitPoint = new Vector3();
