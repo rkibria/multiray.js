@@ -61,14 +61,7 @@ function HitRecord () {
 	this.normal = new Vector3();
 
 	// Temps for use in hit() methods
-	this._vec1 = new Vector3();
-	this._vec2 = new Vector3();
-	this._vec3 = new Vector3();
-	this._vec4 = new Vector3();
-	this._vec5 = new Vector3();
-	this._vec6 = new Vector3();
-	this._vec7 = new Vector3();
-	this._vec8 = new Vector3();
+	this._hr_vec3_1 = new Vector3();
 }
 
 HitRecord.prototype.toString = function hitrecordToString() {
@@ -245,12 +238,15 @@ Renderer.prototype.trace = function(scene, curDepth) {
 
 			if (nextStackElement.hitAnything) {
 				reflectionHit = true;
-				color.set(1.0, 0.0, 0.0);
+				color.copy(nextStackElement.color);
+				color.multiplyScalar(0.5);
 			}
 		}
 
 		if (!reflectionHit) {
-			t = 0.5 * (ray.direction.y + 1.0);
+			traceStackElement._tse_vec3_1.copy(ray.direction);
+			traceStackElement._tse_vec3_1.normalize();
+			t = 0.5 * (traceStackElement._tse_vec3_1.y + 1.0);
 			color.set(0.5, 0.7, 1.0);
 			color.multiplyScalar(t);
 			color.addScalar(1.0 - t);
@@ -317,7 +313,7 @@ function Sphere (center, radius = 0.0) {
 }
 
 Sphere.prototype.hit = function(ray, tMin, tMax, hitRec) {
-	const oc = hitRec._vec1;
+	const oc = hitRec._hr_vec3_1;
 	oc.subVectors(ray.origin, this.center);
 
  	const a = ray.direction.dot(ray.direction);
@@ -371,6 +367,9 @@ function TraceStackElement () {
 	this.nearestHitNormal = new Vector3();
 	this.nearestHitPoint = new Vector3();
 	this.ray = new Ray();
+
+	// Temps for use during trace
+	this._tse_vec3_1 = new Vector3();
 }
 
 TraceStackElement.prototype.toString = function traceStackElementToString() {
