@@ -113,7 +113,7 @@ trace
 
 function Renderer () {
 	this.maxDepth = 0;
-	this.nSamplesPerPixel = 5;
+	this.nSamplesPerPixel = 10;
 
 	this._color = new Vector3();
 	this._traceStack = [];
@@ -123,7 +123,7 @@ Renderer.prototype.renderToCanvas = function(scene, depth, canvas) {
 	// https://stackoverflow.com/questions/4032179/how-do-i-get-the-width-and-height-of-a-html5-canvas
 	const sW = canvas.scrollWidth;
 	const sH = canvas.scrollHeight;
-	console.log("[MULTIRAY] Canvas size", sW, "x", sH, "=", sW * sH, "rays");
+	console.log("[MULTIRAY] Canvas size", sW, "x", sH, "with", this.nSamplesPerPixel, "samples/pixels =", sW * sH * this.nSamplesPerPixel, "traces");
 
 	// Get canvas bitmap
 	const ctx = canvas.getContext("2d");
@@ -208,7 +208,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	const nSceneObjects = scene.objects.length;
 	for (let i = 0; i < nSceneObjects; i++) {
 		const curObject = scene.objects[i];
-		const isHit = curObject.hit(ray, 0.01, Infinity, hitRec);
+		const isHit = curObject.hit(ray, 0.001, Infinity, hitRec);
 		if (isHit) {
 			traceStackElement.hitAnything = true;
 			if (hitRec.t < lowestT) {
