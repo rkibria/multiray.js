@@ -135,8 +135,7 @@ Renderer.prototype.renderToCanvas = function(scene, depth, canvas) {
 
 Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 	if (depth < 1) {
-		console.log("[MULTIRAY] depth < 1, not rendering");
-		return;
+		throw new Error("[MULTIRAY] depth < 1, not rendering");
 	}
 	this.maxDepth = depth;
 	console.log("[MULTIRAY] Rendering", scene.objects.length, "objects with depth", this.maxDepth);
@@ -190,7 +189,7 @@ nearestHitPoint
 */
 Renderer.prototype.trace = function(scene, curDepth) {
 	if (curDepth > this.maxDepth) {
-		return;
+		throw new Error("[MULTIRAY] max depth exceeded");
 	}
 
 	const traceStackElement = this._traceStack[curDepth];
