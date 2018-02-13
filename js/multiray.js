@@ -285,11 +285,11 @@ Scene.prototype.setCamera = function(cam) {
 };
 
 Scene.prototype.toString = function sceneToString() {
-	let out = "Scene(" + String(this.camera) + ",bg:" + String(this.backgroundColor) + ",light:" + this.light + "," + this.objects.length + ":[";
+	let out = "Scene(<br>" + String(this.camera) + "<br>bgcolor:" + String(this.backgroundColor) + "<br>light:" + this.light + "<br>" + this.objects.length + " objects:<br>";
 	for (let i = 0; i < this.objects.length; ++i) {
-		out += String(this.objects[i]) + " ";
+		out += String(this.objects[i]) + "<br>";
 	}
-	out += "])";
+	out += ")";
 	return out;
 };
 

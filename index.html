@@ -57,8 +57,6 @@
 <script>
 const renderer = new MULTIRAY.Renderer();
 
-document.getElementById("renderinfo1").innerHTML = "2 spheres, camera at origin, direction = -Z";
-
 const scene1 = new MULTIRAY.Scene();
 scene1.backgroundColor.set(0.5, 0.7, 1.0);
 
@@ -69,13 +67,10 @@ camera.origin = new MULTIRAY.Vector3(0.0, 0.0, 0.0);
 camera.vertical = new MULTIRAY.Vector3(0.0, 2.0, 0.0);
 scene1.setCamera(camera);
 
-scene1.addObject(new MULTIRAY.Sphere());
-scene1.objects[0].center.set(0, 0, -1);
-scene1.objects[0].radius = 0.5;
+scene1.addObject(new MULTIRAY.Sphere(new MULTIRAY.Vector3(0, 0, -1), 0.5));
+scene1.addObject(new MULTIRAY.Sphere(new MULTIRAY.Vector3(0, -100.5, -1), 100));
 
-scene1.addObject(new MULTIRAY.Sphere());
-scene1.objects[1].center.set(0, -100.5, -1);
-scene1.objects[1].radius = 100;
+document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
 let t0 = 0, t1 = 0;
 (function drawFrame () {
@@ -84,8 +79,8 @@ let t0 = 0, t1 = 0;
 	t1 = performance.now();
 	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms";
 
-	document.getElementById("renderinfo2").innerHTML = "2 spheres, camera at (1,1,0), direction = -Z";
 	scene1.camera.origin.set(1, 1, 0);
+	document.getElementById("renderinfo2").innerHTML = scene1.toString();
 	t0 = performance.now();
 	renderer.renderToCanvas(scene1, 2, document.getElementById("rendercanvas2"));
 	t1 = performance.now();
