@@ -143,7 +143,7 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 
 	if (this._traceStack.length < this.maxDepth) {
 		this._traceStack = new Array(this.maxDepth);
-		for (let i = 0; i < this.maxDepth; i++) {
+		for (let i = 0; i < this.maxDepth; ++i) {
 			this._traceStack[i] = new TraceStackElement();
 		}
 	}
@@ -161,7 +161,7 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		const v0 = 1.0 - (y / sH);
 
 		color.set(0,0,0);
-		for (let k = 0; k < nSamples; k++) {
+		for (let k = 0; k < nSamples; ++k) {
 			const u = u0 + Math.random() / sW;
 			const v = v0 + Math.random() / sH;
 			scene.camera.getRay(traceStackFirst.ray, u, v);
@@ -206,7 +206,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	let hitObject = null;
 
 	const nSceneObjects = scene.objects.length;
-	for (let i = 0; i < nSceneObjects; i++) {
+	for (let i = 0; i < nSceneObjects; ++i) {
 		const curObject = scene.objects[i];
 		const isHit = curObject.hit(ray, 0.001, Infinity, hitRec);
 		if (isHit) {
@@ -287,7 +287,7 @@ Scene.prototype.setCamera = function(cam) {
 
 Scene.prototype.toString = function sceneToString() {
 	let out = "Scene(" + String(this.camera) + ",bg:" + String(this.backgroundColor) + ",light:" + this.light + "," + this.objects.length + ":[";
-	for (let i = 0; i < this.objects.length; i++) {
+	for (let i = 0; i < this.objects.length; ++i) {
 		out += String(this.objects[i]) + " ";
 	}
 	out += "])";
