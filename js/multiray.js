@@ -195,15 +195,16 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	const traceStackElement = this._traceStack[curDepth];
 
 	const color = traceStackElement.color;
+	color.setScalar(0.0);
 	const nearestHitNormal = traceStackElement.nearestHitNormal;
 	const nearestHitPoint = traceStackElement.nearestHitPoint;
 	const hitRec = traceStackElement.hitRec;
 	const ray = traceStackElement.ray;
 
+	// Loop through all objects to find if we hit one, and if yes the closest (lowest t value) of them
 	traceStackElement.hitAnything = false;
 	let lowestT = Infinity;
 	let hitObject = null;
-
 	const nSceneObjects = scene.objects.length;
 	for (let i = 0; i < nSceneObjects; ++i) {
 		const curObject = scene.objects[i];
@@ -219,9 +220,11 @@ Renderer.prototype.trace = function(scene, curDepth) {
 		}
 	}
 
+	// If object hit then compute the color (possibly requiring more traces), else use background color
 	if (traceStackElement.hitAnything) {
-		// color.mapFrom(nearestHitNormal, function(x) {return 0.5*(x+1.0);});
+		// color.mapFrom(nearestHitNormal, function(x) {return 0.5*(x+1.0);}); // debugging: color from hit normal
 
+		// If we are not at max depth shoot a reflected ray
 		reflectionHit = false;
 		if (curDepth < this.maxDepth - 1) {
 			nextDepth = curDepth + 1;
@@ -231,30 +234,25 @@ Renderer.prototype.trace = function(scene, curDepth) {
 			
 			nextRay.origin.copy(nearestHitPoint);
 			
+			// direction = random + normal
 			nextRay.direction.randomInUnitSphere();
 			nextRay.direction.add(nearestHitNormal);
 
 			this.trace(scene, nextDepth);
 
-			if (nextStackElement.hitAnything) {
-				reflectionHit = true;
-				color.copy(nextStackElement.color);
-				color.multiplyScalar(0.5);
-			}
+			color.copy(nextStackElement.color);
+			color.multiplyScalar(0.5);
 		}
 
-		if (!reflectionHit) {
-			traceStackElement._tse_vec3_1.copy(ray.direction);
-			traceStackElement._tse_vec3_1.normalize();
-			t = 0.5 * (traceStackElement._tse_vec3_1.y + 1.0);
-			color.set(0.5, 0.7, 1.0);
-			color.multiplyScalar(t);
-			color.addScalar(1.0 - t);
-		}
 	}
 	else {
-		color.copy(scene.backgroundColor);
-	}
+		traceStackElement._tse_vec3_1.copy(ray.direction);
+		traceStackElement._tse_vec3_1.normalize();
+		t = 0.5 * (traceStackElement._tse_vec3_1.y + 1.0);
+		color.set(0.5, 0.7, 1.0);
+		color.multiplyScalar(t);
+		color.addScalar(1.0 - t);
+}
 }
 
 /* ************************************
@@ -270,7 +268,6 @@ toString
 */
 
 function Scene () {
-	this.backgroundColor = new Vector3(0.0, 0.0, 0.0);
 	this.camera = null;
 	this.light = new Vector3(0.0, 0.0, 0.0);
 	this.objects = [];
@@ -285,7 +282,7 @@ Scene.prototype.setCamera = function(cam) {
 };
 
 Scene.prototype.toString = function sceneToString() {
-	let out = "Scene(<br>" + String(this.camera) + "<br>bgcolor:" + String(this.backgroundColor) + "<br>light:" + this.light + "<br>" + this.objects.length + " objects:<br>";
+	let out = "Scene(<br>" + String(this.camera) + "<br>light:" + this.light + "<br>" + this.objects.length + " objects:<br>";
 	for (let i = 0; i < this.objects.length; ++i) {
 		out += String(this.objects[i]) + "<br>";
 	}
@@ -647,7 +644,7 @@ _export.Vector3 = Vector3;
 
 	console.log("[MULTIRAY_TEST] Running Sphere tests...");
 
-	const s1 = new Sphere();
+	const s1 = new Sphere("sph1");
 	console.log("[MULTIRAY_TEST]", String(s1));
 
 	const rv1 = new Vector3(1, 2, 3);
