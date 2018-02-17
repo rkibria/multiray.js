@@ -73,7 +73,9 @@ scene1.addObject(new MULTIRAY.Sphere("sph_left", new MULTIRAY.Vector3(-1, 0, -1)
 
 document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
-let t0 = 0, t1 = 0, depth = 2;
+let t0 = 0, t1 = 0, depth = 4;
+renderer.nSamplesPerPixel = 50;
+
 (function drawFrame () {
 	t0 = performance.now();
 	renderer.renderToCanvas(scene1, depth, document.getElementById("rendercanvas1"));
