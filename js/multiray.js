@@ -269,7 +269,6 @@ toString
 
 function Scene () {
 	this.camera = null;
-	this.light = new Vector3(0.0, 0.0, 0.0);
 	this.objects = [];
 }
 
@@ -282,7 +281,7 @@ Scene.prototype.setCamera = function(cam) {
 };
 
 Scene.prototype.toString = function sceneToString() {
-	let out = "Scene(<br>" + String(this.camera) + "<br>light:" + this.light + "<br>" + this.objects.length + " objects:<br>";
+	let out = "Scene(<br>" + String(this.camera) + "<br>" + this.objects.length + " objects:<br>";
 	for (let i = 0; i < this.objects.length; ++i) {
 		out += String(this.objects[i]) + "<br>";
 	}
