@@ -159,6 +159,7 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		const u0 = x / sW;
 		const v0 = 1.0 - (y / sH);
 
+		// Average over requested number of samples
 		color.set(0,0,0);
 		for (let k = 0; k < nSamples; ++k) {
 			const u = u0 + Math.random() / sW;
@@ -168,8 +169,11 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 			color.add(traceStackFirst.color);
 		}
 		color.divideScalar(nSamples);
+
+		// Gamma correction
 		color.map(Math.sqrt);
 
+		// Write pixel to image data
 		const pixel = imgData.data;
 		pixel[i] = Math.max (0, Math.min (255, color.x * 255));
 		pixel[i+1] = Math.max (0, Math.min (255, color.y * 255));
@@ -252,7 +256,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 		color.set(0.5, 0.7, 1.0);
 		color.multiplyScalar(t);
 		color.addScalar(1.0 - t);
-}
+	}
 }
 
 /* ************************************
