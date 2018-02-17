@@ -576,7 +576,7 @@ Vector3.prototype.subVectors = function(a, b) {
 };
 
 Vector3.prototype.toString = function vector3ToString() {
-	return "V(" + this.x + ',' + this.y + ',' + this.z + ")";
+	return "[" + this.x + ', ' + this.y + ', ' + this.z + "]";
 };
 
 /* ************************************

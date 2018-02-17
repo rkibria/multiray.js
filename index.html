@@ -69,6 +69,8 @@ scene1.setCamera(camera);
 
 scene1.addObject(new MULTIRAY.Sphere(new MULTIRAY.Vector3(0, 0, -1), 0.5));
 scene1.addObject(new MULTIRAY.Sphere(new MULTIRAY.Vector3(0, -100.5, -1), 100));
+scene1.addObject(new MULTIRAY.Sphere(new MULTIRAY.Vector3(1, 0, -1), 0.5));
+scene1.addObject(new MULTIRAY.Sphere(new MULTIRAY.Vector3(-1, 0, -1), 0.5));
 
 document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
@@ -79,7 +81,7 @@ let t0 = 0, t1 = 0;
 	t1 = performance.now();
 	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms";
 
-	scene1.camera.origin.set(1, 1, 0);
+	camera.origin.set(0, 3, 5);
 	document.getElementById("renderinfo2").innerHTML = scene1.toString();
 	t0 = performance.now();
 	renderer.renderToCanvas(scene1, 2, document.getElementById("rendercanvas2"));
