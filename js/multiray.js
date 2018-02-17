@@ -304,7 +304,8 @@ toString
 
 */
 
-function Sphere (center, radius = 0.0) {
+function Sphere (id, center, radius = 0.0) {
+	this.id = id;
 	this.center = new Vector3();
 	if (center !== undefined) {
 		this.center.copy(center);
@@ -347,7 +348,7 @@ Sphere.prototype.hit = function(ray, tMin, tMax, hitRec) {
 };
 
 Sphere.prototype.toString = function rayToString() {
-	return "Sphere(" + String(this.center) + "," + this.radius + ")";
+	return this.id + "(" + String(this.center) + "," + this.radius + ")";
 };
 
 /* ************************************
@@ -650,7 +651,7 @@ _export.Vector3 = Vector3;
 	console.log("[MULTIRAY_TEST]", String(s1));
 
 	const rv1 = new Vector3(1, 2, 3);
-	const s2 = new Sphere(rv1, 4);
+	const s2 = new Sphere("sph1", rv1, 4);
 	console.assert(s2.center.x == 1 && s2.center.y == 2 && s2.center.z == 3 && s2.radius == 4);
 
 	const r1 = new Ray();
