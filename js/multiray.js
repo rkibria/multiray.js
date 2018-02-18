@@ -4,6 +4,7 @@
 
 var MULTIRAY = {
 	CameraSimple: null,
+	Helpers: null,
 	HitRecord: null,
 	Ray: null,
 	Renderer: null,
@@ -44,6 +45,22 @@ CameraSimple.prototype.getRay = function(ray, u, v) {
 CameraSimple.prototype.toString = function cameraToString() {
 	return "CameraSimple(" + String(this.origin) + "," + String(this.lowerLeftCorner) + "," + String(this.horizontal) + "," + String(this.vertical) + ")";
 };
+
+/* ************************************
+	CLASS: Helpers
+***************************************
+
+METHODS:
+
+getCanvasSize
+
+*/
+
+Helpers = {}
+
+Helpers.getCanvasSize = function(canvas) {
+	return {x: canvas.scrollWidth, y: canvas.scrollHeight};
+}
 
 /* ************************************
 	CLASS: HitRecord
@@ -120,10 +137,9 @@ function Renderer () {
 }
 
 Renderer.prototype.renderToCanvas = function(scene, depth, canvas) {
-	// https://stackoverflow.com/questions/4032179/how-do-i-get-the-width-and-height-of-a-html5-canvas
-	const sW = canvas.scrollWidth;
-	const sH = canvas.scrollHeight;
-	console.log("[MULTIRAY] Canvas size", sW, "x", sH, "with", this.nSamplesPerPixel, "samples/pixels =", sW * sH * this.nSamplesPerPixel, "traces");
+	const canvasSize = Helpers.getCanvasSize(canvas);
+	const sW = canvasSize.x;
+	const sH = canvasSize.y;
 
 	// Get canvas bitmap
 	const ctx = canvas.getContext("2d");
@@ -138,7 +154,6 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		throw new Error("[MULTIRAY] depth < 1, not rendering");
 	}
 	this.maxDepth = depth;
-	console.log("[MULTIRAY] Rendering", scene.objects.length, "objects with depth", this.maxDepth);
 
 	if (this._traceStack.length < this.maxDepth) {
 		this._traceStack = new Array(this.maxDepth);
@@ -585,6 +600,7 @@ Vector3.prototype.toString = function vector3ToString() {
 **************************************/
 
 _export.CameraSimple = CameraSimple;
+_export.Helpers = Helpers;
 _export.HitRecord = HitRecord;
 _export.Ray = Ray;
 _export.Renderer = Renderer;

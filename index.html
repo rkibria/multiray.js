@@ -76,19 +76,23 @@ document.getElementById("renderinfo1").innerHTML = scene1.toString();
 let t0 = 0, t1 = 0, depth = 4;
 renderer.nSamplesPerPixel = 50;
 
-(function drawFrame () {
+function runRender(scene, canvas, depth) {
 	t0 = performance.now();
-	renderer.renderToCanvas(scene1, depth, document.getElementById("rendercanvas1"));
+	renderer.renderToCanvas(scene, depth, canvas);
 	t1 = performance.now();
-	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms with depth " + renderer.maxDepth + ", " + renderer.nSamplesPerPixel + " samples/pixel";
+	let cvsize = MULTIRAY.Helpers.getCanvasSize(canvas);
+	return "Render time: " + Math.floor(t1 - t0) + " ms,"
+		+ " max depth: " + renderer.maxDepth 
+		+ ", samples/pixel: " + renderer.nSamplesPerPixel 
+		+ ", canvas size: " + cvsize.x + "x" + cvsize.y;
+}
+
+(function drawFrame () {
+	document.getElementById("rendertime1").innerHTML = runRender(scene1, document.getElementById("rendercanvas1"), depth);
 
 	camera.origin.set(0, 3, 5);
 	document.getElementById("renderinfo2").innerHTML = scene1.toString();
-	t0 = performance.now();
-	renderer.renderToCanvas(scene1, depth, document.getElementById("rendercanvas2"));
-	t1 = performance.now();
-	document.getElementById("rendertime2").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms with depth " + renderer.maxDepth + ", " + renderer.nSamplesPerPixel + " samples/pixel";
-
+	document.getElementById("rendertime2").innerHTML = runRender(scene1, document.getElementById("rendercanvas2"), depth);
 }());
 
 </script>
