@@ -18,20 +18,16 @@
 <h3>Test 1</h3>
 
 <p id="renderinfo1"></p>
-
-<canvas id="rendercanvas1" width="640" height="240">Your browser does not support the HTML5 canvas1 tag.</canvas>
-
+<canvas id="rendercanvas1" width="640" height="480">Your browser does not support the HTML5 canvas1 tag.</canvas>
 <p id="rendertime1">rendering...</p>
 
-<!-- ------------------------------ -->
-<hr>
-<h3>Test 2</h3>
-
 <p id="renderinfo2"></p>
-
-<canvas id="rendercanvas2" width="640" height="240">Your browser does not support the HTML5 canvas1 tag.</canvas>
-
+<canvas id="rendercanvas2" width="640" height="480">Your browser does not support the HTML5 canvas1 tag.</canvas>
 <p id="rendertime2">rendering...</p>
+
+<p id="renderinfo3"></p>
+<canvas id="rendercanvas3" width="640" height="480">Your browser does not support the HTML5 canvas1 tag.</canvas>
+<p id="rendertime3">rendering...</p>
 
 <!-- ------------------------------ -->
 <hr>
@@ -60,16 +56,17 @@ const renderer = new MULTIRAY.Renderer();
 const scene1 = new MULTIRAY.Scene();
 
 const camera = new MULTIRAY.CameraSimple();
-camera.horizontal = new MULTIRAY.Vector3(4.0, 0.0, 0.0);
-camera.lowerLeftCorner = new MULTIRAY.Vector3(-2.0, -1.0, -1.0);
 camera.origin = new MULTIRAY.Vector3(0.0, 0.0, 0.0);
-camera.vertical = new MULTIRAY.Vector3(0.0, 2.0, 0.0);
+camera.lowerLeftCorner = new MULTIRAY.Vector3(-2.0, -1.0, -1.0);
+camera.horizontal = new MULTIRAY.Vector3(4.0, 0.0, 0.0);
+camera.vertical = new MULTIRAY.Vector3(0.0, 3.0, 0.0);
 scene1.setCamera(camera);
 
 scene1.addObject(new MULTIRAY.Sphere("sph_mid", new MULTIRAY.Vector3(0, 0, -1), 0.5));
 scene1.addObject(new MULTIRAY.Sphere("sph_ground", new MULTIRAY.Vector3(0, -100.5, -1), 100));
 scene1.addObject(new MULTIRAY.Sphere("sph_right", new MULTIRAY.Vector3(1, 0, -1), 0.5));
 scene1.addObject(new MULTIRAY.Sphere("sph_left", new MULTIRAY.Vector3(-1, 0, -1), 0.5));
+scene1.addObject(new MULTIRAY.Sphere("sph_mid_far", new MULTIRAY.Vector3(0, 0, -2), 0.5));
 
 document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
@@ -90,9 +87,19 @@ function runRender(scene, canvas, depth) {
 (function drawFrame () {
 	document.getElementById("rendertime1").innerHTML = runRender(scene1, document.getElementById("rendercanvas1"), depth);
 
-	camera.origin.set(0, 3, 5);
-	document.getElementById("renderinfo2").innerHTML = scene1.toString();
+	camera.origin.set(-2.0, 0.0, -1.0);
+	camera.lowerLeftCorner.set(-1.0, -1.5, -3.0);
+	camera.horizontal.set(0.0, 0.0, 4.0);
+	camera.vertical.set(0.0, 3.0, 0.0);
+	document.getElementById("renderinfo2").innerHTML = "<ul><li>" + camera.toString() + "</li></ul>";
 	document.getElementById("rendertime2").innerHTML = runRender(scene1, document.getElementById("rendercanvas2"), depth);
+
+	camera.origin.set(0.0, 2.0, -1.0);
+	camera.lowerLeftCorner.set(-2, -0.5, 0.0);
+	camera.horizontal.set(4.0, 0.0, 0.0);
+	camera.vertical.set(0.0, 0.0, -3.0);
+	document.getElementById("renderinfo3").innerHTML = "<ul><li>" + camera.toString() + "</li></ul>";
+	document.getElementById("rendertime3").innerHTML = runRender(scene1, document.getElementById("rendercanvas3"), depth);
 }());
 
 </script>
