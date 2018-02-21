@@ -257,6 +257,8 @@ Renderer.prototype.trace = function(scene, curDepth) {
 			nextRay.direction.randomInUnitSphere();
 			nextRay.direction.add(nearestHitNormal);
 
+			// nextRay.direction.reflect(ray.direction, nearestHitNormal); // perfect mirroring
+
 			this.trace(scene, nextDepth);
 
 			color.copy(nextStackElement.color);
@@ -417,6 +419,7 @@ multiplyScalar
 multiplyVectors
 normalize
 randomInUnitSphere
+reflect
 set
 setScalar
 sub
@@ -553,6 +556,13 @@ Vector3.prototype.randomInUnitSphere = function() {
 		this.y = 2.0 * Math.random() - 1.0;
 		this.z = 2.0 * Math.random() - 1.0;
 	} while (this.lengthSq() >= 1.0);
+	return this;
+};
+
+Vector3.prototype.reflect = function(v, n) {
+	this.copy(n);
+	this.multiplyScalar(-2 * v.dot(n));
+	this.add(v);
 	return this;
 };
 
