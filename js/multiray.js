@@ -104,7 +104,13 @@ function LambertianMaterial (albedo) {
 }
 
 LambertianMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
+	attenuation.copy(this.albedo);
 
+	scattered.origin.copy(rec.p);
+	scattered.direction.randomInUnitSphere();
+	scattered.direction.add(rec.normal);
+
+	return true;
 };
 
 LambertianMaterial.prototype.toString = function lambertianMatToString() {
@@ -246,6 +252,7 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	const nearestHitPoint = traceStackElement.nearestHitPoint;
 	const hitRec = traceStackElement.hitRec;
 	const ray = traceStackElement.ray;
+	const attenuation = traceStackElement.attenuation;
 
 	// Loop through all objects to find if we hit one, and if yes the closest (lowest t value) of them
 	traceStackElement.hitAnything = false;
@@ -270,6 +277,11 @@ Renderer.prototype.trace = function(scene, curDepth) {
 	if (traceStackElement.hitAnything) {
 		// color.mapFrom(nearestHitNormal, function(x) {return 0.5*(x+1.0);}); // debugging: color from hit normal
 
+		// Store closest hit in current HitRecord
+		hitRec.t = lowestT;
+		hitRec.p.copy(nearestHitPoint);
+		hitRec.normal.copy(nearestHitNormal);
+
 		// If we are not at max depth shoot a reflected ray
 		reflectionHit = false;
 		if (curDepth < this.maxDepth - 1) {
@@ -277,21 +289,14 @@ Renderer.prototype.trace = function(scene, curDepth) {
 
 			const nextStackElement = this._traceStack[nextDepth];
 			const nextRay = nextStackElement.ray;
-			
-			nextRay.origin.copy(nearestHitPoint);
-			
-			// direction = random + normal
-			nextRay.direction.randomInUnitSphere();
-			nextRay.direction.add(nearestHitNormal);
 
-			// nextRay.direction.reflect(ray.direction, nearestHitNormal); // perfect mirroring
+			if (hitObject.material.scatter(ray, hitRec, attenuation, nextRay)) {
+				this.trace(scene, nextDepth);
 
-			this.trace(scene, nextDepth);
-
-			color.copy(nextStackElement.color);
-			color.multiplyScalar(0.5);
+				color.copy(nextStackElement.color);
+				color.multiply(attenuation);
+			}
 		}
-
 	}
 	else {
 		traceStackElement._tse_vec3_1.copy(ray.direction);
@@ -413,6 +418,7 @@ function TraceStackElement () {
 	this.nearestHitNormal = new Vector3();
 	this.nearestHitPoint = new Vector3();
 	this.ray = new Ray();
+	this.attenuation = new Vector3();
 
 	// Temps for use during trace
 	this._tse_vec3_1 = new Vector3();
