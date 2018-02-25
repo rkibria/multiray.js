@@ -130,24 +130,31 @@ toString
 
 */
 
-function MetalMaterial (albedo) {
+function MetalMaterial (albedo, fuzz = 0.0) {
 	this.albedo = new Vector3();
 	if (albedo !== undefined) {
 		this.albedo.copy(albedo);
 	}
+	this.fuzz = Math.max(0.0, Math.min(fuzz, 1.0));
 }
 
 MetalMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
 	attenuation.copy(this.albedo);
 
-	scattered.origin.copy(rec.p);
+	// Use origin as a temp variable
+	scattered.origin.randomInUnitSphere();
+	scattered.origin.multiplyScalar(this.fuzz);
+
 	scattered.direction.reflect(r_in.direction, rec.normal);
+	scattered.direction.add(scattered.origin);
+
+	scattered.origin.copy(rec.p);
 
 	return (scattered.direction.dot(rec.normal) > 0);
 };
 
 MetalMaterial.prototype.toString = function lambertianMatToString() {
-	return "MetalMaterial(albedo:" + String(this.albedo) + ")";
+	return "MetalMaterial(albedo:" + String(this.albedo) + ",fuzz:" + String(this.fuzz) + ")";
 };
 
 /* ************************************
