@@ -6,6 +6,7 @@ var MULTIRAY = {
 	CameraSimple: null,
 	Helpers: null,
 	HitRecord: null,
+	LambertianMaterial: null,
 	Ray: null,
 	Renderer: null,
 	Scene: null,
@@ -84,6 +85,32 @@ function HitRecord () {
 HitRecord.prototype.toString = function hitrecordToString() {
 	return "HitRecord(t:" + String(this.t) + ",p:" + String(this.p) + ",normal:" + String(this.normal) + ")";
 };
+
+/* ************************************
+	CLASS: LambertianMaterial
+***************************************
+
+METHODS:
+
+toString
+
+*/
+
+function LambertianMaterial (albedo) {
+	this.albedo = new Vector3();
+	if (albedo !== undefined) {
+		this.albedo.copy(albedo);
+	}
+}
+
+LambertianMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
+
+};
+
+LambertianMaterial.prototype.toString = function lambertianMatToString() {
+	return "LambertianMaterial(albedo:" + String(this.albedo) + ")";
+};
+
 
 /* ************************************
 	CLASS: Ray
@@ -321,13 +348,14 @@ toString
 
 */
 
-function Sphere (id, center, radius = 0.0) {
+function Sphere (id, center, radius = 0.0, material = null) {
 	this.id = id;
 	this.center = new Vector3();
 	if (center !== undefined) {
 		this.center.copy(center);
 	}
 	this.radius = radius;
+	this.material = material;
 }
 
 Sphere.prototype.hit = function(ray, tMin, tMax, hitRec) {
@@ -365,7 +393,7 @@ Sphere.prototype.hit = function(ray, tMin, tMax, hitRec) {
 };
 
 Sphere.prototype.toString = function rayToString() {
-	return this.id + "(" + String(this.center) + "," + this.radius + ")";
+	return this.id + "(" + String(this.center) + "," + this.radius + "," + String(this.material) + ")";
 };
 
 /* ************************************
@@ -612,6 +640,7 @@ Vector3.prototype.toString = function vector3ToString() {
 _export.CameraSimple = CameraSimple;
 _export.Helpers = Helpers;
 _export.HitRecord = HitRecord;
+_export.LambertianMaterial = LambertianMaterial;
 _export.Ray = Ray;
 _export.Renderer = Renderer;
 _export.Scene = Scene;
