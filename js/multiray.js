@@ -7,6 +7,7 @@ var MULTIRAY = {
 	Helpers: null,
 	HitRecord: null,
 	LambertianMaterial: null,
+	MetalMaterial: null,
 	Ray: null,
 	Renderer: null,
 	Scene: null,
@@ -92,6 +93,7 @@ HitRecord.prototype.toString = function hitrecordToString() {
 
 METHODS:
 
+scatter
 toString
 
 */
@@ -117,6 +119,36 @@ LambertianMaterial.prototype.toString = function lambertianMatToString() {
 	return "LambertianMaterial(albedo:" + String(this.albedo) + ")";
 };
 
+/* ************************************
+	CLASS: MetalMaterial
+***************************************
+
+METHODS:
+
+scatter
+toString
+
+*/
+
+function MetalMaterial (albedo) {
+	this.albedo = new Vector3();
+	if (albedo !== undefined) {
+		this.albedo.copy(albedo);
+	}
+}
+
+MetalMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
+	attenuation.copy(this.albedo);
+
+	scattered.origin.copy(rec.p);
+	scattered.direction.reflect(r_in.direction, rec.normal);
+
+	return (scattered.direction.dot(rec.normal) > 0);
+};
+
+MetalMaterial.prototype.toString = function lambertianMatToString() {
+	return "MetalMaterial(albedo:" + String(this.albedo) + ")";
+};
 
 /* ************************************
 	CLASS: Ray
@@ -647,6 +679,7 @@ _export.CameraSimple = CameraSimple;
 _export.Helpers = Helpers;
 _export.HitRecord = HitRecord;
 _export.LambertianMaterial = LambertianMaterial;
+_export.MetalMaterial = MetalMaterial;
 _export.Ray = Ray;
 _export.Renderer = Renderer;
 _export.Scene = Scene;
