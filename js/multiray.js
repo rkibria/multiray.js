@@ -4,6 +4,7 @@
 
 var MULTIRAY = {
 	CameraSimple: null,
+	DielectricMaterial: null,
 	Helpers: null,
 	HitRecord: null,
 	LambertianMaterial: null,
@@ -49,6 +50,59 @@ CameraSimple.prototype.toString = function cameraToString() {
 };
 
 /* ************************************
+	CLASS: DielectricMaterial
+***************************************
+
+METHODS:
+
+scatter
+toString
+
+*/
+
+function DielectricMaterial (refIndex = 1.0) {
+	this.refIndex = refIndex;
+}
+
+DielectricMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
+	const outward_normal = rec._hr_vec3_1;
+	const reflected = rec._hr_vec3_2;
+	let ni_over_nt = 0.0;
+	attenuation.set(1.0, 1.0, 1.0);
+	const refracted = rec._hr_vec3_3;
+	const uv = rec._hr_vec3_4;
+
+	reflected.reflect(r_in.direction, rec.normal);
+
+	if (r_in.direction.dot(rec.normal) > 0) {
+		outward_normal.copyScaled(rec.normal, -1.0);
+		ni_over_nt = this.refIndex;
+	}
+	else {
+		outward_normal.copy(rec.normal);
+		ni_over_nt = 1.0 / this.refIndex;
+	}
+
+	uv.copy(r_in.direction);
+	uv.normalize();
+	if (refracted.refract(uv, outward_normal, ni_over_nt)) {
+		scattered.origin.copy(rec.p);
+		scattered.direction.copy(refracted);
+	}
+	else {
+		scattered.origin.copy(rec.p);
+		scattered.direction.copy(reflected);
+		return false;
+	}
+
+	return true;
+};
+
+DielectricMaterial.prototype.toString = function dielectricMatToString() {
+	return "DielectricMaterial(refIndex:" + String(this.refIndex) + ")";
+};
+
+/* ************************************
 	CLASS: Helpers
 ***************************************
 
@@ -79,8 +133,11 @@ function HitRecord () {
 	this.p = new Vector3();
 	this.normal = new Vector3();
 
-	// Temps for use in hit() methods
+	// Temps for use in hit() or scatter() methods
 	this._hr_vec3_1 = new Vector3();
+	this._hr_vec3_2 = new Vector3();
+	this._hr_vec3_3 = new Vector3();
+	this._hr_vec3_4 = new Vector3();
 }
 
 HitRecord.prototype.toString = function hitrecordToString() {
@@ -478,6 +535,7 @@ addScalar
 addScaledVector
 addVectors
 copy
+copyScaled
 crossVectors
 divide
 divideScalar
@@ -542,6 +600,13 @@ Vector3.prototype.copy = function(v) {
 	this.x = v.x;
 	this.y = v.y;
 	this.z = v.z;
+	return this;
+};
+
+Vector3.prototype.copyScaled = function(v, s) {
+	this.x = v.x * s;
+	this.y = v.y * s;
+	this.z = v.z * s;
 	return this;
 };
 
@@ -708,6 +773,7 @@ Vector3.prototype.toString = function vector3ToString() {
 **************************************/
 
 _export.CameraSimple = CameraSimple;
+_export.DielectricMaterial = DielectricMaterial;
 _export.Helpers = Helpers;
 _export.HitRecord = HitRecord;
 _export.LambertianMaterial = LambertianMaterial;
