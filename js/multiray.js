@@ -64,37 +64,52 @@ function DielectricMaterial (refIndex = 1.0) {
 	this.refIndex = refIndex;
 }
 
+DielectricMaterial.prototype.schlick = function(cosine, refIndex) {
+	let r0 = (1.0 - refIndex) / (1.0 + refIndex);
+	r0 *= r0;
+	return r0 + (1.0 - r0) * Math.pow(1.0 - cosine, 5.0);
+}
+
 DielectricMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
 	const outward_normal = rec._hr_vec3_1;
 	const reflected = rec._hr_vec3_2;
 	let ni_over_nt = 0.0;
 	attenuation.set(1.0, 1.0, 1.0);
 	const refracted = rec._hr_vec3_3;
-	const uv = rec._hr_vec3_4;
+	let reflect_prob = 0.0;
+	let cosine = 0.0;
 
+	const uv = rec._hr_vec3_4;
 	reflected.reflect(r_in.direction, rec.normal);
 
 	if (r_in.direction.dot(rec.normal) > 0) {
 		outward_normal.copyScaled(rec.normal, -1.0);
 		ni_over_nt = this.refIndex;
+		cosine = this.refIndex * r_in.direction.dot(rec.normal) / r_in.direction.length();
 	}
 	else {
 		outward_normal.copy(rec.normal);
 		ni_over_nt = 1.0 / this.refIndex;
+		cosine = -1.0 * r_in.direction.dot(rec.normal) / r_in.direction.length();
 	}
 
 	uv.copy(r_in.direction);
 	uv.normalize();
 	if (refracted.refract(uv, outward_normal, ni_over_nt)) {
+		reflect_prob = this.schlick(cosine, this.refIndex);
+	}
+	else {
+		reflect_prob = 1.0;
+	}
+
+	if (Math.random() < reflect_prob) {
 		scattered.origin.copy(rec.p);
-		scattered.direction.copy(refracted);
+		scattered.direction.copy(reflected);
 	}
 	else {
 		scattered.origin.copy(rec.p);
-		scattered.direction.copy(reflected);
-		return false;
+		scattered.direction.copy(refracted);
 	}
-
 	return true;
 };
 
