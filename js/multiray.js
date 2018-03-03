@@ -493,11 +493,13 @@ multiplyVectors
 normalize
 randomInUnitSphere
 reflect
+refract
 set
 setScalar
 sub
 subScalar
 subVectors
+subScaledVector
 toString
 
 */
@@ -639,6 +641,22 @@ Vector3.prototype.reflect = function(v, n) {
 	return this;
 };
 
+/// uv is normalized
+Vector3.prototype.refract = function(uv, n, ni_over_nt) {
+	const dt = uv.dot(n);
+	const discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
+	if (discriminant > 0) {
+		this.copy(uv);
+		this.subScaledVector(n, dt);
+		this.multiplyScalar(ni_over_nt);
+		this.subScaledVector(n, Math.sqrt(discriminant));
+		return true;
+	}
+	else {
+		return false;
+	}
+};
+
 Vector3.prototype.set = function(x, y, z) {
 	this.x = x;
 	this.y = y;
@@ -664,6 +682,13 @@ Vector3.prototype.subScalar = function(s) {
 	this.x -= s;
 	this.y -= s;
 	this.z -= s;
+	return this;
+};
+
+Vector3.prototype.subScaledVector = function(v, s) {
+	this.x -= v.x * s;
+	this.y -= v.y * s;
+	this.z -= v.z * s;
 	return this;
 };
 
