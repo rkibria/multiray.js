@@ -69,6 +69,7 @@ scene1.addObject(new MULTIRAY.Sphere("sph_left", new MULTIRAY.Vector3(-1, 0, -1)
 scene1.addObject(new MULTIRAY.Sphere("sph_mid_far", new MULTIRAY.Vector3(0, 0, -2), 0.5, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.0, 0.8, 0))));
 scene1.addObject(new MULTIRAY.Sphere("sph_left_far", new MULTIRAY.Vector3(-1, -0.25, -2), 0.25, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.0, 0.0, 0.8))));
 scene1.addObject(new MULTIRAY.Sphere("sph_left_near", new MULTIRAY.Vector3(-1, -0.25, 0.25), 0.25, new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.0), 0.5)));
+scene1.addObject(new MULTIRAY.Sphere("sph_far_left_near", new MULTIRAY.Vector3(-1.5, -0.25, -0.6), -0.25, new MULTIRAY.DielectricMaterial(1.1)));
 
 document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
