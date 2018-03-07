@@ -34,7 +34,7 @@ toString
 */
 
 /// vfov is top to bottom in degrees
-function Camera (lookfrom, lookat, vup, vfov, aspect) {
+function Camera (lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
 	this.lookfrom = new Vector3();
 	this.lookat = new Vector3();
 	this.vup = new Vector3();
@@ -48,15 +48,21 @@ function Camera (lookfrom, lookat, vup, vfov, aspect) {
 	this.v = new Vector3();
 	this.w = new Vector3();
 
-	this.setView(lookfrom, lookat, vup, vfov, aspect);
+	this.rd = new Vector3();
+	this.offset = new Vector3();
+
+	this.setView(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist);
 }
 
-Camera.prototype.setView = function(lookfrom, lookat, vup, vfov, aspect) {
+Camera.prototype.setView = function(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
 	this.lookfrom.copy(lookfrom);
 	this.lookat.copy(lookat);
 	this.vup.copy(vup);
 	this.vfov = vfov;
 	this.aspect = aspect;
+	this.aperture = aperture;
+	this.focusDist = focusDist;
+	this.lensRadius = aperture / 2;
 
 	const theta = vfov * Math.PI / 180.0;
 	const halfHeight = Math.tan(theta / 2);
@@ -68,21 +74,29 @@ Camera.prototype.setView = function(lookfrom, lookat, vup, vfov, aspect) {
 	this.v.crossVectors(this.w, this.u);
 
 	this.lowerLeftCorner.copy(this.origin);
-	this.lowerLeftCorner.subScaledVector(this.u, halfWidth);
-	this.lowerLeftCorner.subScaledVector(this.v, halfHeight);
-	this.lowerLeftCorner.sub(this.w);
+	this.lowerLeftCorner.subScaledVector(this.u, halfWidth * focusDist);
+	this.lowerLeftCorner.subScaledVector(this.v, halfHeight * focusDist);
+	this.lowerLeftCorner.subScaledVector(this.w, focusDist);
 
-	this.horizontal.copyScaled(this.u, 2 * halfWidth);
-	this.vertical.copyScaled(this.v, 2 * halfHeight);
+	this.horizontal.copyScaled(this.u, 2 * halfWidth * focusDist);
+	this.vertical.copyScaled(this.v, 2 * halfHeight * focusDist);
 }
 
 Camera.prototype.getRay = function(ray, s, t) {
+	this.rd.randomInUnitDisk();
+	this.rd.multiplyScalar(this.lensRadius);
+
+	this.offset.copyScaled(this.u, this.rd.x);
+	this.offset.addScaledVector(this.v, this.rd.y);
+
 	ray.origin.copy(this.origin);
+	ray.origin.add(this.offset);
 
 	ray.direction.copy(this.lowerLeftCorner);
 	ray.direction.addScaledVector(this.horizontal, s);
 	ray.direction.addScaledVector(this.vertical, t);
-	ray.direction.sub(this.origin);	
+	ray.direction.sub(this.origin);
+	ray.direction.sub(this.offset);
 };
 
 Camera.prototype.toString = function cameraToString() {
@@ -91,6 +105,8 @@ Camera.prototype.toString = function cameraToString() {
 		+ ", vup:" + String(this.vup)
 		+ ", vfov:" + String(this.vfov)
 		+ ", aspect:" + String(this.aspect)
+		+ ", aperture:" + String(this.aperture)
+		+ ", focusDist:" + String(this.focusDist)
 		+ ")";
 };
 
@@ -750,6 +766,15 @@ Vector3.prototype.multiplyVectors = function(a, b) {
 
 Vector3.prototype.normalize = function() {
 	return this.divideScalar (this.length());
+};
+
+Vector3.prototype.randomInUnitDisk = function() {
+	do {
+		this.x = 2.0 * Math.random() - 1.0;
+		this.y = 2.0 * Math.random() - 1.0;
+		this.z = 0;
+	} while (this.lengthSq() >= 1.0);
+	return this;
 };
 
 Vector3.prototype.randomInUnitSphere = function() {
