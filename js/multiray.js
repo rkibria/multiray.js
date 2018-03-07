@@ -161,7 +161,7 @@ DielectricMaterial.prototype.scatter = function(r_in, rec, attenuation, scattere
 };
 
 DielectricMaterial.prototype.toString = function dielectricMatToString() {
-	return "DielectricMaterial(refIndex:" + String(this.refIndex) + ")";
+	return "DielectricMaterial(attenuation:" + String(this.attenuation) + ", refIndex:" + String(this.refIndex) + ")";
 };
 
 /* ************************************
@@ -273,7 +273,7 @@ MetalMaterial.prototype.scatter = function(r_in, rec, attenuation, scattered) {
 };
 
 MetalMaterial.prototype.toString = function lambertianMatToString() {
-	return "MetalMaterial(albedo:" + String(this.albedo) + ",fuzz:" + String(this.fuzz) + ")";
+	return "MetalMaterial(albedo:" + String(this.albedo) + ", fuzz:" + String(this.fuzz) + ")";
 };
 
 /* ************************************
@@ -304,7 +304,7 @@ Ray.prototype.set = function(o, d) {
 }
 
 Ray.prototype.toString = function rayToString() {
-	return "Ray(" + String(this.origin) + "," + String(this.direction) + ")";
+	return "Ray(origin:" + String(this.origin) + ", direction:" + String(this.direction) + ")";
 };
 
 /* ************************************
@@ -556,7 +556,7 @@ Sphere.prototype.hit = function(ray, tMin, tMax, hitRec) {
 };
 
 Sphere.prototype.toString = function rayToString() {
-	return this.id + "(" + String(this.center) + "," + this.radius + "," + String(this.material) + ")";
+	return this.id + "(center:" + String(this.center) + ", radius:" + this.radius + ", " + String(this.material) + ")";
 };
 
 /* ************************************
