@@ -82,18 +82,25 @@ scene1.addObject(new MULTIRAY.Sphere("sph_right_far", new MULTIRAY.Vector3(2, -0
 
 document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
-let t0 = 0, t1 = 0, depth = 50;
+let t0 = 0, t1 = 0, depth = 50, maxSamples = 50;
 
 renderer.init(cvsize.x, cvsize.y);
 
-for (i = 0; i < 50; ++i) {
+let nSamples = 0;
+
+(function runRender1() {
 	t0 = performance.now();
 	renderer.render(scene1, depth);
 	t1 = performance.now();
-	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms";
-
 	renderer.draw(canvas1);
-}
+
+	nSamples += 1;
+	document.getElementById("rendertime1").innerHTML = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + Math.floor(t1 - t0) + " ms";
+
+	if (nSamples < maxSamples) {
+		setTimeout(runRender1, 0);
+	}
+}());
 
 /*
 function runRender(scene, canvas, depth) {
