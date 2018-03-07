@@ -1,9 +1,13 @@
 /**
  * @author rkibria / http://rkibria.netlify.com/
+ *
+ * https://github.com/rkibria/multiray.js
+ *
+ * MIT License
  */
 
 var MULTIRAY = {
-	CameraSimple: null,
+	Camera: null,
 	DielectricMaterial: null,
 	Helpers: null,
 	HitRecord: null,
@@ -19,7 +23,7 @@ var MULTIRAY = {
 (function (_export) {
 
 /* ************************************
-	CLASS: CameraSimple
+	CLASS: Camera
 ***************************************
 
 METHODS:
@@ -29,24 +33,65 @@ toString
 
 */
 
-function CameraSimple () {
-	this.horizontal = new Vector3();
-	this.lowerLeftCorner = new Vector3();
+/// vfov is top to bottom in degrees
+function Camera (lookfrom, lookat, vup, vfov, aspect) {
+	this.lookfrom = new Vector3();
+	this.lookat = new Vector3();
+	this.vup = new Vector3();
+
 	this.origin = new Vector3();
+	this.lowerLeftCorner = new Vector3();
+	this.horizontal = new Vector3();
 	this.vertical = new Vector3();
+
+	this.u = new Vector3();
+	this.v = new Vector3();
+	this.w = new Vector3();
+
+	this.setView(lookfrom, lookat, vup, vfov, aspect);
 }
 
-CameraSimple.prototype.getRay = function(ray, u, v) {
+Camera.prototype.setView = function(lookfrom, lookat, vup, vfov, aspect) {
+	this.lookfrom.copy(lookfrom);
+	this.lookat.copy(lookat);
+	this.vup.copy(vup);
+	this.vfov = vfov;
+	this.aspect = aspect;
+
+	const theta = vfov * Math.PI / 180.0;
+	const halfHeight = Math.tan(theta / 2);
+	const halfWidth = aspect * halfHeight;
+
+	this.origin.copy(lookfrom);
+	this.w.subVectors(lookfrom, lookat).normalize();
+	this.u.crossVectors(vup, this.w).normalize();
+	this.v.crossVectors(this.w, this.u);
+
+	this.lowerLeftCorner.copy(this.origin);
+	this.lowerLeftCorner.subScaledVector(this.u, halfWidth);
+	this.lowerLeftCorner.subScaledVector(this.v, halfHeight);
+	this.lowerLeftCorner.sub(this.w);
+
+	this.horizontal.copyScaled(this.u, 2 * halfWidth);
+	this.vertical.copyScaled(this.v, 2 * halfHeight);
+}
+
+Camera.prototype.getRay = function(ray, s, t) {
 	ray.origin.copy(this.origin);
 
 	ray.direction.copy(this.lowerLeftCorner);
-	ray.direction.addScaledVector(this.horizontal, u);
-	ray.direction.addScaledVector(this.vertical, v);
+	ray.direction.addScaledVector(this.horizontal, s);
+	ray.direction.addScaledVector(this.vertical, t);
 	ray.direction.sub(this.origin);	
 };
 
-CameraSimple.prototype.toString = function cameraToString() {
-	return "CameraSimple(" + String(this.origin) + "," + String(this.lowerLeftCorner) + "," + String(this.horizontal) + "," + String(this.vertical) + ")";
+Camera.prototype.toString = function cameraToString() {
+	return "Camera(lookfrom:" + String(this.lookfrom)
+		+ ", lookat:" + String(this.lookat)
+		+ ", vup:" + String(this.vup)
+		+ ", vfov:" + String(this.vfov)
+		+ ", aspect:" + String(this.aspect)
+		+ ")";
 };
 
 /* ************************************
@@ -787,7 +832,7 @@ Vector3.prototype.toString = function vector3ToString() {
 	Exports
 **************************************/
 
-_export.CameraSimple = CameraSimple;
+_export.Camera = Camera;
 _export.DielectricMaterial = DielectricMaterial;
 _export.Helpers = Helpers;
 _export.HitRecord = HitRecord;
