@@ -105,7 +105,9 @@ toString
 
 */
 
-function DielectricMaterial (refIndex = 1.0) {
+function DielectricMaterial (attenuation, refIndex = 1.0) {
+	this.attenuation = new Vector3();
+	this.attenuation.copy(attenuation);
 	this.refIndex = refIndex;
 }
 
@@ -119,7 +121,7 @@ DielectricMaterial.prototype.scatter = function(r_in, rec, attenuation, scattere
 	const outward_normal = rec._hr_vec3_1;
 	const reflected = rec._hr_vec3_2;
 	let ni_over_nt = 0.0;
-	attenuation.set(1.0, 1.0, 1.0);
+	attenuation.copy(this.attenuation);
 	const refracted = rec._hr_vec3_3;
 	let reflect_prob = 0.0;
 	let cosine = 0.0;
