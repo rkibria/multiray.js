@@ -55,7 +55,8 @@ const renderer = new MULTIRAY.Renderer();
 
 const scene1 = new MULTIRAY.Scene();
 
-const cvsize = MULTIRAY.Helpers.getCanvasSize(document.getElementById("rendercanvas1"));
+const canvas1 = document.getElementById("rendercanvas1");
+const cvsize = MULTIRAY.Helpers.getCanvasSize(canvas1);
 const aspect = cvsize.x / cvsize.y;
 
 const camera = new MULTIRAY.Camera( // lookfrom, lookat, vup, vfov, aspect, aperture, focusDist
@@ -82,8 +83,19 @@ scene1.addObject(new MULTIRAY.Sphere("sph_right_far", new MULTIRAY.Vector3(2, -0
 document.getElementById("renderinfo1").innerHTML = scene1.toString();
 
 let t0 = 0, t1 = 0, depth = 50;
-renderer.nSamplesPerPixel = 50;
 
+renderer.init(cvsize.x, cvsize.y);
+
+for (i = 0; i < 50; ++i) {
+	t0 = performance.now();
+	renderer.render(scene1, depth);
+	t1 = performance.now();
+	document.getElementById("rendertime1").innerHTML = "Render time: " + Math.floor(t1 - t0) + " ms";
+
+	renderer.draw(canvas1);
+}
+
+/*
 function runRender(scene, canvas, depth) {
 	t0 = performance.now();
 	renderer.renderToCanvas(scene, depth, canvas);
@@ -122,6 +134,7 @@ function runRender(scene, canvas, depth) {
 	document.getElementById("renderinfo3").innerHTML = "<ul><li>" + camera.toString() + "</li></ul>";
 	document.getElementById("rendertime3").innerHTML = runRender(scene1, document.getElementById("rendercanvas3"), depth);
 }());
+*/
 
 </script>
 

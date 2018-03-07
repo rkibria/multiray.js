@@ -337,26 +337,31 @@ trace
 
 function Renderer () {
 	this.maxDepth = 0;
-	this.nSamplesPerPixel = 10;
+	this.nSamplesPerPixel = 1;
 
 	this._color = new Vector3();
 	this._traceStack = [];
+
+	this.sW = 0;
+	this.sH = 0;
+	this.renderBuffer = [];
+	this.nSamplesDone = 0;
 }
 
-Renderer.prototype.renderToCanvas = function(scene, depth, canvas) {
-	const canvasSize = Helpers.getCanvasSize(canvas);
-	const sW = canvasSize.x;
-	const sH = canvasSize.y;
+Renderer.prototype.init = function(sW, sH) {
+	this.nSamplesDone = 0;
+	this.sW = sW;
+	this.sH = sH;
+	this.renderBuffer = new Array(sW);
+	for (x = 0; x < sW; ++x) {
+		this.renderBuffer[x] = new Array(sH);
+		for (y = 0; y < sH; ++y) {
+			this.renderBuffer[x][y] = new Vector3();
+		}
+	}
+}
 
-	// Get canvas bitmap
-	const ctx = canvas.getContext("2d");
-	const imgData = ctx.getImageData(0, 0, sW, sH);
-
-	this.renderToImageData(scene, depth, imgData, sW, sH);
-	ctx.putImageData(imgData, 0, 0);
-};
-
-Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
+Renderer.prototype.render = function(scene, depth) {
 	if (depth < 1) {
 		throw new Error("[MULTIRAY] depth < 1, not rendering");
 	}
@@ -369,28 +374,34 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		}
 	}
 
-	const nSamples = this.nSamplesPerPixel;
-	const color = this._color;
 	const traceStackFirst = this._traceStack[0];
-
-	const dataLen = imgData.data.length;
-	for (let i = 0; i < dataLen; i += 4) {
-		const x = (i / 4) % sW;
-		const y = Math.floor(i / (4 * sW));
-
-		const u0 = x / sW;
-		const v0 = 1.0 - (y / sH);
-
-		// Average over requested number of samples
-		color.set(0,0,0);
-		for (let k = 0; k < nSamples; ++k) {
-			const u = u0 + Math.random() / sW;
-			const v = v0 + Math.random() / sH;
+	for (x = 0; x < this.sW; ++x) {
+		for (y = 0; y < this.sH; ++y) {
+			const u0 = x / this.sW;
+			const v0 = 1.0 - (y / this.sH);
+			const u = u0 + Math.random() / this.sW;
+			const v = v0 + Math.random() / this.sH;
 			scene.camera.getRay(traceStackFirst.ray, u, v);
 			this.trace(scene, 0);
-			color.add(traceStackFirst.color);
+			this.renderBuffer[x][y].add(traceStackFirst.color);
 		}
-		color.divideScalar(nSamples);
+	}
+
+	this.nSamplesDone += 1;
+}
+
+Renderer.prototype.draw = function(canvas) {
+	const ctx = canvas.getContext("2d");
+	const imgData = ctx.getImageData(0, 0, this.sW, this.sH);
+	const dataLen = imgData.data.length;
+	const color = this._color;
+	for (let i = 0; i < dataLen; i += 4) {
+		const x = (i / 4) % this.sW;
+		const y = Math.floor(i / (4 * this.sW));
+
+		// Average color over current number of samples
+		color.copy(this.renderBuffer[x][y]);
+		color.divideScalar(this.nSamplesDone);
 
 		// Gamma correction
 		color.map(Math.sqrt);
@@ -402,6 +413,7 @@ Renderer.prototype.renderToImageData = function(scene, depth, imgData, sW, sH) {
 		pixel[i+2] = Math.max (0, Math.min (255, color.z * 255));
 		pixel[i+3] = 255;
 	}
+	ctx.putImageData(imgData, 0, 0);
 }
 
 /*
