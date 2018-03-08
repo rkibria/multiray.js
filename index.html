@@ -54,6 +54,19 @@
 const rendersList = [];
 const nRenders = 3;
 
+const scene = new MULTIRAY.Scene();
+scene.addObject(new MULTIRAY.Sphere("sph_mid", new MULTIRAY.Vector3(0, 0, -1), 0.5, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0, 0))));
+scene.addObject(new MULTIRAY.Sphere("sph_ground", new MULTIRAY.Vector3(0, -100.5, -1), 100, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.8))));
+scene.addObject(new MULTIRAY.Sphere("sph_right", new MULTIRAY.Vector3(1, 0, -1), 0.5, new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(0.9, 0.9, 0.9), 1.5)));
+scene.addObject(new MULTIRAY.Sphere("sph_left", new MULTIRAY.Vector3(-1, 0, -1), 0.5, new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.8), 0.05)));
+scene.addObject(new MULTIRAY.Sphere("sph_mid_far", new MULTIRAY.Vector3(0, 0, -2), 0.5, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.0, 0.8, 0))));
+scene.addObject(new MULTIRAY.Sphere("sph_left_far", new MULTIRAY.Vector3(-1, -0.25, -2), 0.25, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.0, 0.0, 0.8))));
+scene.addObject(new MULTIRAY.Sphere("sph_left_near", new MULTIRAY.Vector3(-1, -0.25, 0.25), 0.25, new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.0), 0.5)));
+scene.addObject(new MULTIRAY.Sphere("sph_far_left_near", new MULTIRAY.Vector3(-2, -0.25, -0.6), -0.25, new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(0.9, 0.8, 0.8), 1.1)));
+scene.addObject(new MULTIRAY.Sphere("sph_right_far", new MULTIRAY.Vector3(2, -0.25, -3), 0.25, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0, 0.8))));
+
+document.getElementById("renderscene").innerHTML = scene.toString();
+
 for (i = 0; i < nRenders; ++i) {
 	const canvas = document.getElementById("rendercanvas" + String(i + 1));
 	const cvsize = MULTIRAY.Helpers.getCanvasSize(canvas);
@@ -61,21 +74,10 @@ for (i = 0; i < nRenders; ++i) {
 
 	const renderStruct = {
 		renderer: new MULTIRAY.Renderer(),
-		scene: new MULTIRAY.Scene(),
 		canvas: canvas,
 		camera: new MULTIRAY.Camera(),
 	};
 	rendersList.push(renderStruct);
-
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_mid", new MULTIRAY.Vector3(0, 0, -1), 0.5, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0, 0))));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_ground", new MULTIRAY.Vector3(0, -100.5, -1), 100, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.8))));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_right", new MULTIRAY.Vector3(1, 0, -1), 0.5, new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(0.9, 0.9, 0.9), 1.5)));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_left", new MULTIRAY.Vector3(-1, 0, -1), 0.5, new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.8), 0.05)));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_mid_far", new MULTIRAY.Vector3(0, 0, -2), 0.5, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.0, 0.8, 0))));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_left_far", new MULTIRAY.Vector3(-1, -0.25, -2), 0.25, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.0, 0.0, 0.8))));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_left_near", new MULTIRAY.Vector3(-1, -0.25, 0.25), 0.25, new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.0), 0.5)));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_far_left_near", new MULTIRAY.Vector3(-2, -0.25, -0.6), -0.25, new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(0.9, 0.8, 0.8), 1.1)));
-	renderStruct.scene.addObject(new MULTIRAY.Sphere("sph_right_far", new MULTIRAY.Vector3(2, -0.25, -3), 0.25, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0, 0.8))));
 
 	if (i == 0) {
 		renderStruct.camera.setView( // lookfrom, lookat, vup, vfov, aspect, aperture, focusDist
@@ -114,7 +116,7 @@ for (i = 0; i < nRenders; ++i) {
 	renderStruct.renderer.init(cvsize.x, cvsize.y);
 
 	const depth = 50, maxSamples = 50;
-	setTimeout(function() {runRender(renderStruct.renderer, renderStruct.scene, renderStruct.camera, renderStruct.canvas, maxSamples, depth, 0, 0);}, 0);
+	setTimeout(function() {runRender(renderStruct.renderer, scene, renderStruct.camera, renderStruct.canvas, maxSamples, depth, 0, 0);}, 0);
 
 	document.getElementById("renderinfo" + String(i + 1)).innerHTML = rendersList[i].camera.toString();
 }
