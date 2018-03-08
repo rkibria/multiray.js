@@ -51,7 +51,9 @@ function Camera (lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
 	this.rd = new Vector3();
 	this.offset = new Vector3();
 
-	this.setView(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist);
+	if (lookfrom !== undefined) {
+		this.setView(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist);
+	}
 }
 
 Camera.prototype.setView = function(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
