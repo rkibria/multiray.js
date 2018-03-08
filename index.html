@@ -88,19 +88,28 @@ renderer.init(cvsize.x, cvsize.y);
 
 let nSamples = 0;
 
-(function runRender1() {
+function runRender(renderer, scene, canvas, timeSum) {
 	t0 = performance.now();
-	renderer.render(scene1, depth);
+	renderer.render(scene, depth);
 	t1 = performance.now();
-	renderer.draw(canvas1);
+	renderer.draw(canvas);
 
 	nSamples += 1;
-	document.getElementById("rendertime1").innerHTML = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + Math.floor(t1 - t0) + " ms";
+	const currentTimeSum = timeSum + Math.floor(t1 - t0);
+
+	var ctx = canvas.getContext("2d");
+	ctx.font = "10px sans-serif";
+	ctx.fillStyle = "green";
+	ctx.textAlign = "center";
+	let logmsg = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + currentTimeSum + " ms";
+	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
 
 	if (nSamples < maxSamples) {
-		setTimeout(runRender1, 0);
+		setTimeout(function() {runRender(renderer, scene, canvas, currentTimeSum);}, 0);
 	}
-}());
+}
+
+setTimeout(function() {runRender(renderer, scene1, canvas1, 0);}, 0);
 
 /*
 function runRender(scene, canvas, depth) {
