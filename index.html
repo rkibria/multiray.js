@@ -17,6 +17,8 @@
 <hr>
 <h3>Test 1</h3>
 
+<p id="renderscene"></p>
+
 <p id="renderinfo1"></p>
 <canvas id="rendercanvas1" width="640" height="480">Your browser does not support the HTML5 canvas1 tag.</canvas>
 
@@ -108,21 +110,18 @@ for (i = 0; i < nRenders; ++i) {
 			4.0
 			);
 	}
-	renderStruct.scene.setCamera(renderStruct.camera);
 
 	renderStruct.renderer.init(cvsize.x, cvsize.y);
 
 	const depth = 50, maxSamples = 50;
-	setTimeout(function() {runRender(renderStruct.renderer, renderStruct.scene, renderStruct.canvas, maxSamples, depth, 0, 0);}, 0);
+	setTimeout(function() {runRender(renderStruct.renderer, renderStruct.scene, renderStruct.camera, renderStruct.canvas, maxSamples, depth, 0, 0);}, 0);
+
+	document.getElementById("renderinfo" + String(i + 1)).innerHTML = rendersList[i].camera.toString();
 }
 
-document.getElementById("renderinfo1").innerHTML = rendersList[0].scene.toString();
-document.getElementById("renderinfo2").innerHTML = rendersList[1].camera.toString();
-document.getElementById("renderinfo3").innerHTML = rendersList[2].camera.toString();
-
-function runRender(renderer, scene, canvas, maxSamples, depth, timeSum, nSamples) {
+function runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples) {
 	const t0 = performance.now();
-	renderer.render(scene, depth);
+	renderer.render(scene, camera, depth);
 	const t1 = performance.now();
 	renderer.draw(canvas);
 
@@ -138,7 +137,7 @@ function runRender(renderer, scene, canvas, maxSamples, depth, timeSum, nSamples
 	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
 
 	if (nSamples < maxSamples) {
-		setTimeout(function() {runRender(renderer, scene, canvas, maxSamples, depth, timeSum, nSamples);}, 0);
+		setTimeout(function() {runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples);}, 0);
 	}
 }
 

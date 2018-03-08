@@ -363,7 +363,7 @@ Renderer.prototype.init = function(sW, sH) {
 	}
 }
 
-Renderer.prototype.render = function(scene, depth) {
+Renderer.prototype.render = function(scene, camera, depth) {
 	if (depth < 1) {
 		throw new Error("[MULTIRAY] depth < 1, not rendering");
 	}
@@ -383,7 +383,7 @@ Renderer.prototype.render = function(scene, depth) {
 			const v0 = 1.0 - (y / this.sH);
 			const u = u0 + Math.random() / this.sW;
 			const v = v0 + Math.random() / this.sH;
-			scene.camera.getRay(traceStackFirst.ray, u, v);
+			camera.getRay(traceStackFirst.ray, u, v);
 			this.trace(scene, 0);
 			this.renderBuffer[x][y].add(traceStackFirst.color);
 		}
@@ -509,7 +509,6 @@ toString
 */
 
 function Scene () {
-	this.camera = null;
 	this.objects = [];
 }
 
@@ -517,12 +516,8 @@ Scene.prototype.addObject = function(obj) {
 	this.objects.push(obj);
 };
 
-Scene.prototype.setCamera = function(cam) {
-	this.camera = cam;
-};
-
 Scene.prototype.toString = function sceneToString() {
-	let out = "Scene(<br>" + String(this.camera) + "<br>" + this.objects.length + " objects:<br>";
+	let out = "Scene(<br>" + this.objects.length + " objects:<br>";
 	for (let i = 0; i < this.objects.length; ++i) {
 		out += String(this.objects[i]) + "<br>";
 	}
