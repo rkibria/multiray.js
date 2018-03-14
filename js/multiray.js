@@ -198,6 +198,32 @@ Helpers.getCanvasSize = function(canvas) {
 	return {x: canvas.scrollWidth, y: canvas.scrollHeight};
 }
 
+Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples) {
+	const t0 = performance.now();
+	renderer.render(scene, camera, depth);
+	const t1 = performance.now();
+	renderer.draw(canvas);
+
+	nSamples += 1;
+	const currentTime = Math.floor(t1 - t0);
+	timeSum += currentTime;
+
+	var ctx = canvas.getContext("2d");
+	ctx.font = "10px sans-serif";
+	ctx.fillStyle = "green";
+	ctx.textAlign = "center";
+	let logmsg = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + timeSum + " ms (last " + currentTime + " ms)";
+	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
+
+	if (nSamples < maxSamples) {
+		setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples);}, 0);
+	}
+}
+
+Helpers.progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth) {
+	setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, 0, 0);}, 0);
+}
+
 /* ************************************
 	CLASS: HitRecord
 ***************************************

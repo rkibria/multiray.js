@@ -123,34 +123,9 @@ for (i = 0; i < 3; ++i) {
 	renderStruct.renderer.init(cvsize.x, cvsize.y);
 
 	const depth = 50, maxSamples = 50;
-
-	let scene = testScene1;
-
-	setTimeout(function() {runRender(renderStruct.renderer, scene, renderStruct.camera, renderStruct.canvas, maxSamples, depth, 0, 0);}, 0);
+	MULTIRAY.Helpers.progressiveRender(renderStruct.renderer, testScene1, renderStruct.camera, renderStruct.canvas, maxSamples, depth);
 
 	document.getElementById("renderinfo" + String(i + 1)).innerHTML = rendersList[i].camera.toString();
-}
-
-function runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples) {
-	const t0 = performance.now();
-	renderer.render(scene, camera, depth);
-	const t1 = performance.now();
-	renderer.draw(canvas);
-
-	nSamples += 1;
-	const currentTime = Math.floor(t1 - t0);
-	timeSum += currentTime;
-
-	var ctx = canvas.getContext("2d");
-	ctx.font = "10px sans-serif";
-	ctx.fillStyle = "green";
-	ctx.textAlign = "center";
-	let logmsg = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + timeSum + " ms (last " + currentTime + " ms)";
-	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
-
-	if (nSamples < maxSamples) {
-		setTimeout(function() {runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples);}, 0);
-	}
 }
 
 </script>
