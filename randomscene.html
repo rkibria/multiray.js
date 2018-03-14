@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>multiray.js test</title>
+</head>
+
+<body>
+
+<script src="js/multiray.js"></script>
+
+<!-- ------------------------------ -->
+<h2><a href="https://github.com/rkibria/multiray.js">multiray.js</a> - JavaScript ray-tracing</h2>
+
+<!-- ------------------------------ -->
+<hr>
+<h3>Randomized Scene</h3>
+
+<canvas id="rendercanvas" width="800" height="600">Your browser does not support the HTML5 canvas1 tag.</canvas>
+
+<!-- ------------------------------ -->
+
+<script>
+
+const randomizedScene = new MULTIRAY.Scene();
+randomizedScene.addObject(new MULTIRAY.Sphere("sph_ground", new MULTIRAY.Vector3(0, -1000, 0), 1000, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.5, 0.5, 0.5))));
+let i = 1;
+for (a = -11; a < 11; ++a) {
+	for (b = -11; b < 11; ++b) {
+		const chooseMat = Math.random();
+		const center = new MULTIRAY.Vector3(
+			a + 0.9 * Math.random(),
+			0.2,
+			b + 0.9 * Math.random());
+		if (new MULTIRAY.Vector3().subVectors(center, new MULTIRAY.Vector3(4, 0.2, 0)).length() > 0.9) {
+			if (chooseMat < 0.8) {
+				randomizedScene.addObject(new MULTIRAY.Sphere("sph_" + String(i++),
+					center,
+					0.2,
+					new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(Math.random() * Math.random(), Math.random() * Math.random(), Math.random() * Math.random()))));
+			}
+			else if (chooseMat < 0.95) {
+				randomizedScene.addObject(new MULTIRAY.Sphere("sph_" + String(i++),
+					center,
+					0.2,
+					new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(
+						0.5 * (1 + Math.random()),
+						0.5 * (1 + Math.random()),
+						0.5 * (1 + Math.random())),
+						0.5 * Math.random())
+					));
+			}
+			else {
+				randomizedScene.addObject(new MULTIRAY.Sphere("sph_" + String(i++),
+					center,
+					0.2,
+					new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(1, 1, 1), 1.5)
+					));
+			}
+		}
+	}
+}
+randomizedScene.addObject(new MULTIRAY.Sphere("big_sph_glass",
+	new MULTIRAY.Vector3(0, 1, 0),
+	1,
+	new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(1, 1, 1), 1.5)
+	));
+randomizedScene.addObject(new MULTIRAY.Sphere("big_sph_lambert",
+	new MULTIRAY.Vector3(-4, 1, 0),
+	1,
+	new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.4, 0.2, 0.1))
+	));
+randomizedScene.addObject(new MULTIRAY.Sphere("big_sph_metal",
+	new MULTIRAY.Vector3(4, 1, 0),
+	1,
+	new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.7, 0.6, 0.5), 0.0)
+	));
+
+const canvas = document.getElementById("rendercanvas");
+const cvsize = MULTIRAY.Helpers.getCanvasSize(canvas);
+const aspect = cvsize.x / cvsize.y;
+
+const renderer = new MULTIRAY.Renderer();
+const camera = new MULTIRAY.Camera();
+
+const lookfrom = new MULTIRAY.Vector3(13, 2, 3);
+const lookat = new MULTIRAY.Vector3(0, 0, 0);
+camera.setView(
+	lookfrom,
+	lookat,
+	new MULTIRAY.Vector3(0, 1, 0),
+	20,
+	aspect,
+	0.1,
+	10.0
+	);
+
+renderer.init(cvsize.x, cvsize.y);
+
+const depth = 50, maxSamples = 50;
+
+setTimeout(function() {runRender(renderer, randomizedScene, camera, canvas, maxSamples, depth, 0, 0);}, 0);
+
+function runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples) {
+	const t0 = performance.now();
+	renderer.render(scene, camera, depth);
+	const t1 = performance.now();
+	renderer.draw(canvas);
+
+	nSamples += 1;
+	const currentTime = Math.floor(t1 - t0);
+	timeSum += currentTime;
+
+	var ctx = canvas.getContext("2d");
+	ctx.font = "10px sans-serif";
+	ctx.fillStyle = "green";
+	ctx.textAlign = "center";
+	let logmsg = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + timeSum + " ms (last " + currentTime + " ms)";
+	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
+
+	if (nSamples < maxSamples) {
+		setTimeout(function() {runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples);}, 0);
+	}
+}
+
+</script>
+
+</body>
+</html>

@@ -15,13 +15,6 @@
 
 <!-- ------------------------------ -->
 <hr>
-<h3>Randomized Scene</h3>
-
-<p id="renderinfo4"></p>
-<canvas id="rendercanvas4" width="800" height="600">Your browser does not support the HTML5 canvas1 tag.</canvas>
-
-<!-- ------------------------------ -->
-<hr>
 <h3>Test Scene 1</h3>
 
 <p id="testScene1info"></p>
@@ -37,6 +30,13 @@
 
 <!-- ------------------------------ -->
 <hr>
+<h3>Other tests</h3>
+<ul>
+	<li><a href="randomscene.html">Randomized scene</a></li>
+</ul>
+
+<!-- ------------------------------ -->
+<hr>
 <h3>References</h3>
 <ul>
 	<li><a href="https://github.com/rkibria/multiray.js">GitHub project page</a></li>
@@ -45,6 +45,7 @@
 	<ul>
 		<li><a href="https://www.amazon.com/gp/product/B01B5AODD8/ref=as_li_tl?ie=UTF8&camp=1789&creative=9325&creativeASIN=B01B5AODD8&linkCode=as2&tag=inonwe09-20&linkId=OPNJXXJY2IBCMEGE">Ray Tracing in One Weekend Kindle Edition</a></li>
 		<li><a href="http://in1weekend.blogspot.de/2016/01/ray-tracing-in-one-weekend.html">Ray Tracing in One Weekend blog</a></li>
+		<li><a href="https://github.com/petershirley/raytracinginoneweekend">Ray Tracing in One Weekend GitHub</a></li>
 	</ul>
 	<li><a href="https://www.scratchapixel.com/index.php">scratchapixel.com</a></li>
 	<ul>
@@ -60,60 +61,6 @@
 
 const rendersList = [];
 
-const randomizedScene = new MULTIRAY.Scene();
-randomizedScene.addObject(new MULTIRAY.Sphere("sph_ground", new MULTIRAY.Vector3(0, -1000, 0), 1000, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.5, 0.5, 0.5))));
-let i = 1;
-for (a = -11; a < 11; ++a) {
-	for (b = -11; b < 11; ++b) {
-		const chooseMat = Math.random();
-		const center = new MULTIRAY.Vector3(
-			a + 0.9 * Math.random(),
-			0.2,
-			b + 0.9 * Math.random());
-		if (new MULTIRAY.Vector3().subVectors(center, new MULTIRAY.Vector3(4, 0.2, 0)).length() > 0.9) {
-			if (chooseMat < 0.8) {
-				randomizedScene.addObject(new MULTIRAY.Sphere("sph_" + String(i++),
-					center,
-					0.2,
-					new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(Math.random() * Math.random(), Math.random() * Math.random(), Math.random() * Math.random()))));
-			}
-			else if (chooseMat < 0.95) {
-				randomizedScene.addObject(new MULTIRAY.Sphere("sph_" + String(i++),
-					center,
-					0.2,
-					new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(
-						0.5 * (1 + Math.random()),
-						0.5 * (1 + Math.random()),
-						0.5 * (1 + Math.random())),
-						0.5 * Math.random())
-					));
-			}
-			else {
-				randomizedScene.addObject(new MULTIRAY.Sphere("sph_" + String(i++),
-					center,
-					0.2,
-					new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(1, 1, 1), 1.5)
-					));
-			}
-		}
-	}
-}
-randomizedScene.addObject(new MULTIRAY.Sphere("big_sph_glass",
-	new MULTIRAY.Vector3(0, 1, 0),
-	1,
-	new MULTIRAY.DielectricMaterial(new MULTIRAY.Vector3(1, 1, 1), 1.5)
-	));
-randomizedScene.addObject(new MULTIRAY.Sphere("big_sph_lambert",
-	new MULTIRAY.Vector3(-4, 1, 0),
-	1,
-	new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.4, 0.2, 0.1))
-	));
-randomizedScene.addObject(new MULTIRAY.Sphere("big_sph_metal",
-	new MULTIRAY.Vector3(4, 1, 0),
-	1,
-	new MULTIRAY.MetalMaterial(new MULTIRAY.Vector3(0.7, 0.6, 0.5), 0.0)
-	));
-
 const testScene1 = new MULTIRAY.Scene();
 testScene1.addObject(new MULTIRAY.Sphere("sph_mid", new MULTIRAY.Vector3(0, 0, -1), 0.5, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0, 0))));
 testScene1.addObject(new MULTIRAY.Sphere("sph_ground", new MULTIRAY.Vector3(0, -100.5, -1), 100, new MULTIRAY.LambertianMaterial(new MULTIRAY.Vector3(0.8, 0.8, 0.8))));
@@ -127,7 +74,7 @@ testScene1.addObject(new MULTIRAY.Sphere("sph_right_far", new MULTIRAY.Vector3(2
 
 document.getElementById("testScene1info").innerHTML = testScene1.toString();
 
-for (i = 0; i < 4; ++i) {
+for (i = 0; i < 3; ++i) {
 	const canvas = document.getElementById("rendercanvas" + String(i + 1));
 	const cvsize = MULTIRAY.Helpers.getCanvasSize(canvas);
 	const aspect = cvsize.x / cvsize.y;
@@ -172,33 +119,16 @@ for (i = 0; i < 4; ++i) {
 			4.0
 			);
 	}
-	else if (i == 3) {
-		const lookfrom = new MULTIRAY.Vector3(13, 2, 3);
-		const lookat = new MULTIRAY.Vector3(0, 0, 0);
-		renderStruct.camera.setView(
-			lookfrom,
-			lookat,
-			new MULTIRAY.Vector3(0, 1, 0),
-			20,
-			aspect,
-			0.1,
-			10.0
-			);
-	}
 
 	renderStruct.renderer.init(cvsize.x, cvsize.y);
 
 	const depth = 50, maxSamples = 50;
 
 	let scene = testScene1;
-	if (i == 3) {
-		scene = randomizedScene;
-	}
 
 	setTimeout(function() {runRender(renderStruct.renderer, scene, renderStruct.camera, renderStruct.canvas, maxSamples, depth, 0, 0);}, 0);
 
-	if (i != 3)
-		document.getElementById("renderinfo" + String(i + 1)).innerHTML = rendersList[i].camera.toString();
+	document.getElementById("renderinfo" + String(i + 1)).innerHTML = rendersList[i].camera.toString();
 }
 
 function runRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples) {
