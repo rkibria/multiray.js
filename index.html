@@ -120,8 +120,6 @@ for (i = 0; i < 3; ++i) {
 			);
 	}
 
-	renderStruct.renderer.init(cvsize.x, cvsize.y);
-
 	const depth = 50, maxSamples = 50;
 	MULTIRAY.Helpers.progressiveRender(renderStruct.renderer, testScene1, renderStruct.camera, renderStruct.canvas, maxSamples, depth);
 

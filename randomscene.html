@@ -96,10 +96,7 @@ camera.setView(
 	10.0
 	);
 
-renderer.init(cvsize.x, cvsize.y);
-
 const depth = 50, maxSamples = 50;
-
 MULTIRAY.Helpers.progressiveRender(renderer, randomizedScene, camera, canvas, maxSamples, depth);
 
 </script>

@@ -198,13 +198,12 @@ Helpers.getCanvasSize = function(canvas) {
 	return {x: canvas.scrollWidth, y: canvas.scrollHeight};
 }
 
-Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples) {
+Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum) {
 	const t0 = performance.now();
-	renderer.render(scene, camera, depth);
+	const sampleDone = renderer.render(scene, camera, depth, timeLimit);
 	const t1 = performance.now();
 	renderer.draw(canvas);
 
-	nSamples += 1;
 	const currentTime = Math.floor(t1 - t0);
 	timeSum += currentTime;
 
@@ -212,16 +211,18 @@ Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSample
 	ctx.font = "10px sans-serif";
 	ctx.fillStyle = "green";
 	ctx.textAlign = "center";
-	let logmsg = "Sample " + nSamples + "/" + maxSamples +  ", render time: " + timeSum + " ms (last " + currentTime + " ms)";
+	let logmsg = "Sample " + renderer.nSamplesDone + "/" + maxSamples +  ", render time: " + (timeSum / 1000).toFixed(1) + " s";
 	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
 
-	if (nSamples < maxSamples) {
-		setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeSum, nSamples);}, 0);
+	if (renderer.nSamplesDone < maxSamples) {
+		setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum);}, 0);
 	}
 }
 
-Helpers.progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth) {
-	setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, 0, 0);}, 0);
+Helpers.progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeLimit = 100) {
+	const cvsize = Helpers.getCanvasSize(canvas);
+	renderer.init(cvsize.x, cvsize.y);
+	setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, 0);}, 0);
 }
 
 /* ************************************
@@ -374,10 +375,12 @@ function Renderer () {
 	this.sH = 0;
 	this.renderBuffer = [];
 	this.nSamplesDone = 0;
+	this.restartY = 0;
 }
 
 Renderer.prototype.init = function(sW, sH) {
 	this.nSamplesDone = 0;
+	this.restartY = 0;
 	this.sW = sW;
 	this.sH = sH;
 	this.renderBuffer = new Array(sW);
@@ -389,7 +392,7 @@ Renderer.prototype.init = function(sW, sH) {
 	}
 }
 
-Renderer.prototype.render = function(scene, camera, depth) {
+Renderer.prototype.render = function(scene, camera, depth, timeLimit = 0) {
 	if (depth < 1) {
 		throw new Error("[MULTIRAY] depth < 1, not rendering");
 	}
@@ -403,8 +406,11 @@ Renderer.prototype.render = function(scene, camera, depth) {
 	}
 
 	const traceStackFirst = this._traceStack[0];
-	for (x = 0; x < this.sW; ++x) {
-		for (y = 0; y < this.sH; ++y) {
+	let timeSum = 0;
+	let sampleDone = true;
+	for (y = this.restartY; y < this.sH; ++y) {
+		const t0 = performance.now();
+		for (x = 0; x < this.sW; ++x) {
 			const u0 = x / this.sW;
 			const v0 = 1.0 - (y / this.sH);
 			const u = u0 + Math.random() / this.sW;
@@ -413,9 +419,22 @@ Renderer.prototype.render = function(scene, camera, depth) {
 			this.trace(scene, 0);
 			this.renderBuffer[x][y].add(traceStackFirst.color);
 		}
+		const t1 = performance.now();
+
+		timeSum += (t1 - t0);
+		if (timeLimit > 0 && timeSum >= timeLimit) {
+			this.restartY = y + 1;
+			sampleDone = false;
+			break;
+		}
 	}
 
-	this.nSamplesDone += 1;
+	if (sampleDone) {
+		this.restartY = 0;
+		this.nSamplesDone += 1;
+	}
+
+	return sampleDone;
 }
 
 Renderer.prototype.draw = function(canvas) {
@@ -429,7 +448,9 @@ Renderer.prototype.draw = function(canvas) {
 
 		// Average color over current number of samples
 		color.copy(this.renderBuffer[x][y]);
-		color.divideScalar(this.nSamplesDone);
+
+		if (this.nSamplesDone > 0)
+			color.divideScalar(this.nSamplesDone);
 
 		// Gamma correction
 		color.map(Math.sqrt);
