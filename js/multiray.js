@@ -198,17 +198,21 @@ Helpers.getCanvasSize = function(canvas) {
 	return {x: canvas.scrollWidth, y: canvas.scrollHeight};
 }
 
-Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum) {
+Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum, lastImgUpdate) {
+	const ctx = canvas.getContext("2d");
+
+	if (lastImgUpdate == 0) {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+	}
+
 	const t0 = performance.now();
 	const sampleDone = renderer.render(scene, camera, depth, timeLimit);
 	const t1 = performance.now();
-	renderer.draw(canvas);
 
 	const currentTime = Math.floor(t1 - t0);
 	timeSum += currentTime;
 
-	var ctx = canvas.getContext("2d");
-
+	// Line shows currently processed image location
 	if (renderer.restartY > 0) {
 		ctx.save();
 		ctx.beginPath();
@@ -220,32 +224,37 @@ Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSample
 		ctx.restore();
 	}
 
-	const txt = "Sample " + renderer.nSamplesDone + "/" + maxSamples +  ", render time: " + (timeSum / 1000).toFixed(1) + " s";
-	const x = canvas.width/2;
-	const y = canvas.height - 12;
-	ctx.save();
-	ctx.font = "12px sans-serif";
-	ctx.textAlign = "center";
-	ctx.setLineDash([]);
-	ctx.strokeStyle = 'black';
-	ctx.fillStyle = 'white';
-	ctx.miterLimit = 2;
-	ctx.lineJoin = 'circle';
-	ctx.lineWidth = 3;
-	ctx.strokeText(txt, x, y);
-	ctx.lineWidth = 1;
-	ctx.fillText(txt, x, y);
-	ctx.restore();
+	if (lastImgUpdate == 0 || timeSum - lastImgUpdate >= 1000 || renderer.nSamplesDone == maxSamples) {
+		renderer.draw(canvas);
+		lastImgUpdate = timeSum;
+
+		const txt = "Sample " + renderer.nSamplesDone + "/" + maxSamples +  ", render time: " + (timeSum / 1000).toFixed(1) + " s";
+		const x = canvas.width/2;
+		const y = canvas.height - 12;
+		ctx.save();
+		ctx.font = "12px sans-serif";
+		ctx.textAlign = "center";
+		ctx.setLineDash([]);
+		ctx.strokeStyle = 'black';
+		ctx.fillStyle = 'white';
+		ctx.miterLimit = 2;
+		ctx.lineJoin = 'circle';
+		ctx.lineWidth = 3;
+		ctx.strokeText(txt, x, y);
+		ctx.lineWidth = 1;
+		ctx.fillText(txt, x, y);
+		ctx.restore();
+	}
 
 	if (renderer.nSamplesDone < maxSamples) {
-		setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum);}, 0);
+		setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum, lastImgUpdate);}, 0);
 	}
 }
 
 Helpers.progressiveRender = function(renderer, scene, camera, canvas, maxSamples, depth, timeLimit = 100) {
 	const cvsize = Helpers.getCanvasSize(canvas);
 	renderer.init(cvsize.x, cvsize.y);
-	setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, 0);}, 0);
+	setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, 0, 0);}, 0);
 }
 
 /* ************************************
