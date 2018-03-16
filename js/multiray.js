@@ -396,7 +396,7 @@ function Renderer () {
 
 	this.sW = 0;
 	this.sH = 0;
-	this.renderBuffer = [];
+	this.renderBuffer = new Array();
 	this.nSamplesDone = 0;
 	this.restartY = 0;
 }
@@ -406,12 +406,9 @@ Renderer.prototype.init = function(sW, sH) {
 	this.restartY = 0;
 	this.sW = sW;
 	this.sH = sH;
-	this.renderBuffer = new Array(sW);
-	for (x = 0; x < sW; ++x) {
-		this.renderBuffer[x] = new Array(sH);
-		for (y = 0; y < sH; ++y) {
-			this.renderBuffer[x][y] = new Vector3();
-		}
+	this.renderBuffer = new Array(sW * sH);
+	for (let i = 0; i < sW * sH; ++i) {
+		this.renderBuffer[i] = new Vector3();
 	}
 }
 
@@ -440,7 +437,7 @@ Renderer.prototype.render = function(scene, camera, depth, timeLimit = 0) {
 			const v = v0 + Math.random() / this.sH;
 			camera.getRay(traceStackFirst.ray, u, v);
 			this.trace(scene, 0);
-			this.renderBuffer[x][y].add(traceStackFirst.color);
+			this.renderBuffer[x + y * this.sW].add(traceStackFirst.color);
 		}
 		const t1 = performance.now();
 
@@ -470,7 +467,8 @@ Renderer.prototype.draw = function(canvas) {
 		const y = Math.floor(i / (4 * this.sW));
 
 		// Average color over current number of samples
-		color.copy(this.renderBuffer[x][y]);
+		const bufferPixel = this.renderBuffer[x + y * this.sW];
+		color.copy(bufferPixel);
 
 		let divideFactor = this.nSamplesDone;
 		if (this.restartY > 0 && y < this.restartY)
