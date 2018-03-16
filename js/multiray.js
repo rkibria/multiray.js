@@ -460,8 +460,12 @@ Renderer.prototype.draw = function(canvas) {
 		// Average color over current number of samples
 		color.copy(this.renderBuffer[x][y]);
 
-		if (this.nSamplesDone > 0)
-			color.divideScalar(this.nSamplesDone);
+		let divideFactor = this.nSamplesDone;
+		if (this.restartY > 0 && y < this.restartY)
+			divideFactor = this.nSamplesDone + 1;
+		if (divideFactor <= 0)
+			divideFactor = 1;
+		color.divideScalar(divideFactor);
 
 		// Gamma correction
 		color.map(Math.sqrt);
