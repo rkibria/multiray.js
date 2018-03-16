@@ -208,11 +208,22 @@ Helpers._progressiveRender = function(renderer, scene, camera, canvas, maxSample
 	timeSum += currentTime;
 
 	var ctx = canvas.getContext("2d");
-	ctx.font = "10px sans-serif";
-	ctx.fillStyle = "green";
+	ctx.font = "12px sans-serif";
 	ctx.textAlign = "center";
-	let logmsg = "Sample " + renderer.nSamplesDone + "/" + maxSamples +  ", render time: " + (timeSum / 1000).toFixed(1) + " s";
-	ctx.fillText(logmsg, canvas.width/2, canvas.height - 10);
+
+	ctx.strokeStyle = 'black';
+	ctx.fillStyle = 'white';
+	ctx.miterLimit = 2;
+	ctx.lineJoin = 'circle';
+
+	const txt = "Sample " + renderer.nSamplesDone + "/" + maxSamples +  ", render time: " + (timeSum / 1000).toFixed(1) + " s";
+	const x = canvas.width/2;
+	const y = canvas.height - 12;
+
+	ctx.lineWidth = 3;
+	ctx.strokeText(txt, x, y);
+	ctx.lineWidth = 1;
+	ctx.fillText(txt, x, y);
 
 	if (renderer.nSamplesDone < maxSamples) {
 		setTimeout(function() {Helpers._progressiveRender(renderer, scene, camera, canvas, maxSamples, depth, timeLimit, timeSum);}, 0);
