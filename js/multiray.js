@@ -60,6 +60,19 @@ AABB.prototype.hit = function(ray, tMin, tMax, hitRec) {
 	return true;
 }
 
+AABB.prototype.surroundingBox = function(box0, box1, resultBox) {
+	resultBox.minimum.set(
+		Math.min(box0.minimum.x, box1.minimum.x),
+		Math.min(box0.minimum.y, box1.minimum.y),
+		Math.min(box0.minimum.z, box1.minimum.z)
+		);
+	resultBox.maximum.set(
+		Math.max(box0.maximum.x, box1.maximum.x),
+		Math.max(box0.maximum.y, box1.maximum.y),
+		Math.max(box0.maximum.z, box1.maximum.z)
+		);
+}
+
 AABB.prototype.toString = function aabbToString() {
 	return "AABB(minimum:" + String(this.minimum)
 		+ ", maximum:" + String(this.maximum)
@@ -669,6 +682,16 @@ function Sphere (id, center, radius = 0.0, material = null) {
 	}
 	this.radius = radius;
 	this.material = material;
+}
+
+Sphere.prototype.boundingBox = function(t0, t1, box) {
+	box.minimum.copy(this.center);
+	box.minimum.subScalar(this.radius);
+
+	box.maximum.copy(this.center);
+	box.maximum.addScalar(this.radius);
+
+	return true;
 }
 
 Sphere.prototype.hit = function(ray, tMin, tMax, hitRec) {
