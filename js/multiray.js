@@ -7,6 +7,7 @@
  */
 
 var MULTIRAY = {
+	AABB: null,
 	Camera: null,
 	DielectricMaterial: null,
 	Helpers: null,
@@ -21,6 +22,49 @@ var MULTIRAY = {
 };
 
 (function (_export) {
+
+/* ************************************
+	CLASS: AABB - Axis aligned bounding box
+***************************************
+
+METHODS:
+
+*/
+
+function AABB (a, b) {
+	this.minimum = new Vector3();
+	this.maximum = new Vector3();
+	this.minimum.copy(a);
+	this.maximum.copy(b);
+}
+
+AABB.prototype.hit = function(ray, tMin, tMax, hitRec) {
+	for (a = 0; a < 3; ++a) {
+		const minA = this.minimum.get(a);
+		const maxA = this.maximum.get(a);
+		const rayOriginA = ray.origin.get(a);
+		const rayDirectionA = ray.direction.get(a);
+
+		const minCompVal = (minA - rayOriginA) / rayDirectionA;
+		const maxCompVal = (maxA - rayOriginA) / rayDirectionA;
+
+		const t0 = Math.min(minCompVal, maxCompVal);
+		const t1 = Math.max(minCompVal, maxCompVal);
+
+		tMin = Math.max(t0, tMin);
+		tMax = Math.min(t1, tMax);
+
+		if (tMax <= tMin)
+			return false;
+	}
+	return true;
+}
+
+AABB.prototype.toString = function aabbToString() {
+	return "AABB(minimum:" + String(this.minimum)
+		+ ", maximum:" + String(this.maximum)
+		+ ")";
+};
 
 /* ************************************
 	CLASS: Camera
@@ -709,6 +753,7 @@ divide
 divideScalar
 dot
 equals
+get
 length
 lengthSq
 map
@@ -810,6 +855,17 @@ Vector3.prototype.dot = function(v) {
 Vector3.prototype.equals = function(v) {
 	return this.x == v.x && this.y == v.y && this.z == v.z;
 };
+
+Vector3.prototype.get = function(i) {
+	if (i == 0)
+		return this.x;
+	else if (i == 1)
+		return this.y;
+	else if (i == 2)
+		return this.z;
+	else
+		return undefined;
+}
 
 Vector3.prototype.length = function() {
 	return Math.sqrt (this.x * this.x + this.y * this.y + this.z * this.z);
@@ -949,6 +1005,7 @@ Vector3.prototype.toString = function vector3ToString() {
 	Exports
 **************************************/
 
+_export.AABB = AABB;
 _export.Camera = Camera;
 _export.DielectricMaterial = DielectricMaterial;
 _export.Helpers = Helpers;

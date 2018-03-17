@@ -22,6 +22,37 @@
 <script>
 
 /* ************************************
+	TEST: AABB
+**************************************/
+
+(function MULTIRAY_TEST_AABB() {
+	const AABB = MULTIRAY.AABB;
+	const HitRecord = MULTIRAY.HitRecord;
+	const Ray = MULTIRAY.Ray;
+	const Vector3 = MULTIRAY.Vector3;
+
+	console.log("[MULTIRAY_TEST] Running AABB tests...");
+
+	const r1 = new Ray();
+	r1.origin.set(0, 0, 0);
+	r1.direction.set(1, 1, 1).normalize();
+
+	const bb1 = new AABB(new Vector3(10, 10, 10), new Vector3(11, 11, 11));
+	console.log("[MULTIRAY_TEST]", String(bb1));
+
+	const hr1 = new HitRecord();
+	const hitResult = bb1.hit(r1, 0.01, Infinity, hr1);
+	console.assert(hitResult == true);
+
+	const r2 = new Ray();
+	r2.origin.set(0, 0, 0);
+	r2.direction.set(0, 1, 1).normalize();
+
+	const hitResult2 = bb1.hit(r2, 0.01, Infinity, hr1);
+	console.assert(hitResult2 == false);
+}());
+
+/* ************************************
 	TEST: Ray
 **************************************/
 
